@@ -2,19 +2,48 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Encode+Sans:wght@100..900&display=swap');
 
-:root
-{
-    --main-color:#0aad0a;
-    --light-color:#f0f3f2;
-    --shadow: rgba(145,158,171,.2) 0px 2px 4px -1px,rgba(145,158,171,.14) 0px 4px 5px 0px,rgba(145,158,171,.12) 0px 1px 10px 0px;
-    --font-family:'Encode Sans Expanded', sans-serif;
-    --rating-color:#ffc908;
+@theme {
+  /* Border radius */
+  --radius-base: 8px;
+  --radius-xs: 4px;
+
+  /* Shadows */
+  --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+
+  /* Brand colors */
+  --color-brand: var(--main-color);
+  --color-brand-strong: #088a08;
+  --color-brand-medium: #4dc94d;
+  --color-brand-soft: #d4f5d4;
+  --color-fg-brand: var(--main-color);
+
+  /* Neutral colors */
+  --color-neutral-primary: #ffffff;
+  --color-neutral-secondary-soft: #f8f9fa;
+  --color-neutral-secondary-medium: #f0f3f2;
+  --color-neutral-tertiary: #dee2e6;
+
+  /* Border colors */
+  --color-default: #dee2e6;
+  --color-default-medium: #ced4da;
+
+  /* Text colors */
+  --color-heading: #212529;
+  --color-body: #6c757d;
 }
 
-body{
-    font-family: var(--font-family) !important;
+:root {
+  --main-color: #0aad0a;
+  --light-color: #f0f3f2;
+  --shadow: rgba(145,158,171,.2) 0px 2px 4px -1px,rgba(145,158,171,.14) 0px 4px 5px 0px,rgba(145,158,171,.12) 0px 1px 10px 0px;
+  --font-family: 'Encode Sans Expanded', sans-serif;
+  --rating-color: #ffc908;
+}
+
+body {
+  font-family: var(--font-family) !important;
 }
 
 .active {
-    color: var(--main-color);
+  color: var(--main-color);
 }
