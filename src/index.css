@@ -14,3 +14,7 @@
 body{
     font-family: var(--font-family) !important;
 }
+
+.active {
+    color: var(--main-color);
+}
