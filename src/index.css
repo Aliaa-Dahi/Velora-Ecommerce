@@ -30,6 +30,11 @@
   /* Text colors */
   --color-heading: #212529;
   --color-body: #6c757d;
+
+  /* Danger colors */
+  --color-fg-danger-strong: #991b1b;
+  --color-danger-soft: #fee2e2;
+  --color-error: #dc2626;
   --color-error: #f00
 }
 
