@@ -30,6 +30,7 @@
   /* Text colors */
   --color-heading: #212529;
   --color-body: #6c757d;
+  --color-error: #f00
 }
 
 :root {
