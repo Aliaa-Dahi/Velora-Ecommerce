@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 const Signup = () => {
   let navigate = useNavigate()
   let [errorMsg, setErrorMsg] = useState("");
-  const baseURL = "https://ecommerce.routemisr.com/api/v1/auth/";
+  const baseURL = "https://ecommerce.routemisr.com/api/v1/auth";
   let validateYup = Yup.object({
     name: Yup.string()
       .required("Name is required")
@@ -33,15 +33,15 @@ const Signup = () => {
   };
 
   async function registerApi(data) {
-    let req = await axios
+    await axios
       .post(`${baseURL}/signup`, data)
       .then((response) => {
-        if(response.data.message == 'success') {
-          navigate('/login')
+        if (response.status >= 200 && response.status <= 300) {
+          navigate('/login');
         }
       })
       .catch((err) => {
-        setErrorMsg(err.response.data.errors.msg);
+        setErrorMsg(err.response?.data?.message || "Something went wrong");
       });
   }
 
@@ -105,7 +105,7 @@ const Signup = () => {
             name="email"
             className=" bg-neutral-secondary-medium border border-default-medium text-sm rounded-base focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand block w-full px-3 py-2.5 shadow-xs placeholder:text-body"
           />
-          {registerFormik.touched.name && registerFormik.errors.email ? (
+          {registerFormik.touched.email && registerFormik.errors.email ? (
             <p className="text-error pt-2">{registerFormik.errors.email}</p>
           ) : (
             ""
@@ -117,7 +117,7 @@ const Signup = () => {
             htmlFor="password"
             className="block mb-2.5 text-sm font-medium text-heading"
           >
-            Your paswword
+            Your password
           </label>
           <input
             onChange={registerFormik.handleChange}
@@ -127,7 +127,7 @@ const Signup = () => {
             name="password"
             className=" bg-neutral-secondary-medium border border-default-medium text-sm rounded-base focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand block w-full px-3 py-2.5 shadow-xs placeholder:text-body"
           />
-          {registerFormik.touched.name && registerFormik.errors.password ? (
+          {registerFormik.touched.password && registerFormik.errors.password ? (
             <p className="text-error pt-2">{registerFormik.errors.password}</p>
           ) : (
             ""
@@ -149,7 +149,7 @@ const Signup = () => {
             name="rePassword"
             className=" bg-neutral-secondary-medium border border-default-medium text-sm rounded-base focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand block w-full px-3 py-2.5 shadow-xs placeholder:text-body"
           />
-          {registerFormik.touched.name && registerFormik.errors.rePassword ? (
+          {registerFormik.touched.rePassword && registerFormik.errors.rePassword ? (
             <p className="text-error pt-2">
               {registerFormik.errors.rePassword}
             </p>
@@ -173,7 +173,7 @@ const Signup = () => {
             name="phone"
             className=" bg-neutral-secondary-medium border border-default-medium text-sm rounded-base focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand block w-full px-3 py-2.5 shadow-xs placeholder:text-body"
           />
-          {registerFormik.touched.name && registerFormik.errors.phone ? (
+          {registerFormik.touched.phone && registerFormik.errors.phone ? (
             <p className="text-error pt-2">{registerFormik.errors.phone}</p>
           ) : (
             ""

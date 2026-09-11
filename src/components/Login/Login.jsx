@@ -2,11 +2,12 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import axios from "axios";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import Cookies from "js-cookie";
 const Login = () => {
   let navigate = useNavigate()
   let [errorMsg, setErrorMsg] = useState("");
-  const baseURL = "https://ecommerce.routemisr.com/api/v1/auth/";
+  const baseURL = "https://ecommerce.routemisr.com/api/v1/auth";
   let validateYup = Yup.object({
     
     email: Yup.string()
@@ -26,15 +27,16 @@ const Login = () => {
   };
 
   async function loginApi(data) {
-    let req = await axios
+    await axios
       .post(`${baseURL}/signin`, data)
       .then((response) => {
-        if(response.data.message == 'success') {
-          navigate('/')
+        if (response.data.token) {
+          Cookies.set("token", response.data.token, { expires: 7 });
+          navigate('/');
         }
       })
       .catch((err) => {
-        setErrorMsg(err.response.data.errors.msg);
+        setErrorMsg(err.response?.data?.message || "Something went wrong");
       });
   }
 
@@ -78,7 +80,7 @@ const Login = () => {
             name="email"
             className=" bg-neutral-secondary-medium border border-default-medium text-sm rounded-base focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand block w-full px-3 py-2.5 shadow-xs placeholder:text-body"
           />
-          {loginFormik.touched.name && loginFormik.errors.email ? (
+          {loginFormik.touched.email && loginFormik.errors.email ? (
             <p className="text-error pt-2">{loginFormik.errors.email}</p>
           ) : (
             ""
@@ -90,7 +92,7 @@ const Login = () => {
             htmlFor="password"
             className="block mb-2.5 text-sm font-medium text-heading"
           >
-            Your paswword
+            Your password
           </label>
           <input
             onChange={loginFormik.handleChange}
@@ -100,14 +102,15 @@ const Login = () => {
             name="password"
             className=" bg-neutral-secondary-medium border border-default-medium text-sm rounded-base focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand block w-full px-3 py-2.5 shadow-xs placeholder:text-body"
           />
-          {loginFormik.touched.name && loginFormik.errors.password ? (
+          {loginFormik.touched.password && loginFormik.errors.password ? (
             <p className="text-error pt-2">{loginFormik.errors.password}</p>
           ) : (
             ""
           )}
         </div>
 
-        <button
+          <Link to='/forgetPassword'>Forget Password?</Link> 
+          <br />       <button
           type="submit"
           className="text-white bg-brand box-border border border-transparent hover:bg-brand-strong focus:ring-4 shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none disabled:opacity-50"
           disabled={!(loginFormik.isValid && loginFormik.dirty)}
