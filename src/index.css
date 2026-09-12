@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-@import url('https://fonts.googleapis.com/css2?family=Encode+Sans:wght@100..900&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Encode+Sans:wght@100..900&display=swap");
 
 @theme {
   /* Border radius */
@@ -35,14 +35,16 @@
   --color-fg-danger-strong: #991b1b;
   --color-danger-soft: #fee2e2;
   --color-error: #dc2626;
-  --color-error: #f00
+  --color-error: #f00;
 }
 
 :root {
   --main-color: #0aad0a;
   --light-color: #f0f3f2;
-  --shadow: rgba(145,158,171,.2) 0px 2px 4px -1px,rgba(145,158,171,.14) 0px 4px 5px 0px,rgba(145,158,171,.12) 0px 1px 10px 0px;
-  --font-family: 'Encode Sans Expanded', sans-serif;
+  --shadow: rgba(145, 158, 171, 0.2) 0px 2px 4px -1px,
+    rgba(145, 158, 171, 0.14) 0px 4px 5px 0px,
+    rgba(145, 158, 171, 0.12) 0px 1px 10px 0px;
+  --font-family: "Encode Sans Expanded", sans-serif;
   --rating-color: #ffc908;
 }
 
@@ -55,5 +57,40 @@ body {
 }
 
 .btn {
-  @apply bg-brand-medium text-white p-2 rounded hover:bg-brand-strong
+  @apply bg-brand-medium text-white p-2 rounded hover:bg-brand-strong;
+}
+
+.loader {
+  --color-1: var(--light-color);
+  --color-2: var(--main-color);
+  --size: 1.5px;
+
+  width: calc(48 * var(--size));
+  height: calc(48 * var(--size));
+  border-radius: 50%;
+  display: inline-block;
+  border-top: calc(4 * var(--size)) solid var(--color-1);
+  border-right: calc(4 * var(--size)) solid transparent;
+  box-sizing: border-box;
+  animation: rotation 1s linear infinite;
+}
+.loader::after {
+  content: "";
+  box-sizing: border-box;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: calc(48 * var(--size));
+  height: calc(48 * var(--size));
+  border-radius: 50%;
+  border-bottom: calc(4 * var(--size)) solid var(--color-2);
+  border-left: calc(4 * var(--size)) solid transparent;
+}
+@keyframes rotation {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
