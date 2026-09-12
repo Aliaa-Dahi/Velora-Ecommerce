@@ -4,6 +4,8 @@ import { faCartShopping } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import MainSlider from "../MainSlider/MainSlider";
+import CategorySlider from '../CategorySlider/CategorySlider';
+import SectionTitle from "../SectionTitle/SectionTitle";
 
 const Home = () => {
   const [productList, setProductList] = useState([]);
@@ -44,8 +46,10 @@ const Home = () => {
         <div className="w-11/12 mx-auto py-6">
           {/* Slider */}
           <MainSlider />
+          <CategorySlider />
 
           {/* Product grid */}
+          <SectionTitle title="Featured Products" subtitle="Explore our latest arrivals" />
           <div className="flex flex-wrap -mx-2">
             {productList?.map((product) => (
               <div key={product.id} className="w-2/12 px-2 mb-5">

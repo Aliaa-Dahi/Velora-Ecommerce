@@ -8,7 +8,7 @@ import sideImg2 from "../../assets/images/grocery-banner-2.jpeg";
 
 const MainSlider = () => {
   const settings = {
-    dots: true,
+    dots: false,
     infinite: true,
     autoplay: true,
     arrows: false,
@@ -21,10 +21,10 @@ const MainSlider = () => {
   return (
     <div className="flex mb-8 rounded-base overflow-hidden shadow-card">
       {/* Main auto-playing slider — 3/4 width */}
-      <div className="w-3/4">
+      <div className="w-3/4 leading-none">
         <Slider {...settings}>
           {[sliderImg1, sliderImg2, sliderImg3].map((src, i) => (
-            <div key={i}>
+            <div key={i} className="leading-none">
               <img
                 className="w-full h-80 object-cover block"
                 src={src}

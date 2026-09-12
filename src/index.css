@@ -99,3 +99,13 @@ body {
   0%   { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+
+/* Remove line-height gap inside react-slick */
+.slick-slider,
+.slick-list,
+.slick-track,
+.slick-slide,
+.slick-slide > div {
+  line-height: 0;
+  font-size: 0;
+}
