@@ -2,6 +2,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import { useEffect, useState } from "react";
+import MainSlider from '../MainSlider/MainSlider'
 
 const Home = () => {
   let [productList, setProductList] = useState([]);
@@ -38,6 +39,7 @@ const Home = () => {
 
       ) : (
         <div className="w-11/12 mx-auto">
+          <MainSlider />
           <div className="flex flex-wrap -mx-2">
             {productList?.map((product) => {
               return (
