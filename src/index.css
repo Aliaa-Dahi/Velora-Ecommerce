@@ -9,43 +9,39 @@
 
   /* Shadows */
   --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-card: 0 2px 8px 0 rgb(0 0 0 / 0.08);
 
-  /* Brand colors */
-  --color-brand: var(--main-color);
-  --color-brand-strong: #088a08;
-  --color-brand-medium: #4dc94d;
-  --color-brand-soft: #d4f5d4;
-  --color-fg-brand: var(--main-color);
+  /* Primary (green brand) colors */
+  --color-primary:        #0aad0a;
+  --color-primary-strong: #088a08;
+  --color-primary-medium: #4dc94d;
+  --color-primary-soft:   #d4f5d4;
 
   /* Neutral colors */
-  --color-neutral-primary: #ffffff;
-  --color-neutral-secondary-soft: #f8f9fa;
-  --color-neutral-secondary-medium: #f0f3f2;
-  --color-neutral-tertiary: #dee2e6;
-
-  /* Border colors */
-  --color-default: #dee2e6;
-  --color-default-medium: #ced4da;
+  --color-neutral-white:            #ffffff;
+  --color-neutral-bg-soft:          #f8f9fa;
+  --color-neutral-bg-medium:        #f0f3f2;
+  --color-neutral-border:           #dee2e6;
+  --color-neutral-border-medium:    #ced4da;
 
   /* Text colors */
-  --color-heading: #212529;
-  --color-body: #6c757d;
+  --color-text-heading: #212529;
+  --color-text-muted:   #6c757d;
 
   /* Danger colors */
-  --color-fg-danger-strong: #991b1b;
-  --color-danger-soft: #fee2e2;
-  --color-error: #dc2626;
-  --color-error: #f00;
+  --color-danger-text:   #991b1b;
+  --color-danger-bg:     #fee2e2;
+  --color-danger-strong: #dc2626;
 }
 
 :root {
-  --main-color: #0aad0a;
-  --light-color: #f0f3f2;
-  --shadow: rgba(145, 158, 171, 0.2) 0px 2px 4px -1px,
-    rgba(145, 158, 171, 0.14) 0px 4px 5px 0px,
-    rgba(145, 158, 171, 0.12) 0px 1px 10px 0px;
-  --font-family: "Encode Sans Expanded", sans-serif;
-  --rating-color: #ffc908;
+  --main-color:    #0aad0a;
+  --light-color:   #f0f3f2;
+  --shadow:        rgba(145, 158, 171, 0.2) 0px 2px 4px -1px,
+                   rgba(145, 158, 171, 0.14) 0px 4px 5px 0px,
+                   rgba(145, 158, 171, 0.12) 0px 1px 10px 0px;
+  --font-family:   "Encode Sans Expanded", sans-serif;
+  --rating-color:  #ffc908;
 }
 
 body {
@@ -56,41 +52,50 @@ body {
   color: var(--main-color);
 }
 
-.btn {
-  @apply bg-brand-medium text-white p-2 rounded hover:bg-brand-strong;
+@utility btn {
+  background-color: var(--color-primary-medium);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: var(--color-primary-strong);
+  }
 }
 
+/* Loader spinner */
 .loader {
-  --color-1: var(--light-color);
-  --color-2: var(--main-color);
-  --size: 1.5px;
+  --spinner-bg:   var(--light-color);
+  --spinner-fg:   var(--main-color);
+  --size:         1.5px;
 
-  width: calc(48 * var(--size));
-  height: calc(48 * var(--size));
-  border-radius: 50%;
-  display: inline-block;
-  border-top: calc(4 * var(--size)) solid var(--color-1);
-  border-right: calc(4 * var(--size)) solid transparent;
-  box-sizing: border-box;
-  animation: rotation 1s linear infinite;
+  width:          calc(48 * var(--size));
+  height:         calc(48 * var(--size));
+  border-radius:  50%;
+  display:        inline-block;
+  border-top:     calc(4 * var(--size)) solid var(--spinner-bg);
+  border-right:   calc(4 * var(--size)) solid transparent;
+  box-sizing:     border-box;
+  animation:      rotation 1s linear infinite;
 }
+
 .loader::after {
-  content: "";
-  box-sizing: border-box;
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: calc(48 * var(--size));
-  height: calc(48 * var(--size));
-  border-radius: 50%;
-  border-bottom: calc(4 * var(--size)) solid var(--color-2);
-  border-left: calc(4 * var(--size)) solid transparent;
+  content:        "";
+  box-sizing:     border-box;
+  position:       absolute;
+  left:           0;
+  top:            0;
+  width:          calc(48 * var(--size));
+  height:         calc(48 * var(--size));
+  border-radius:  50%;
+  border-bottom:  calc(4 * var(--size)) solid var(--spinner-fg);
+  border-left:    calc(4 * var(--size)) solid transparent;
 }
+
 @keyframes rotation {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }

@@ -1,23 +1,21 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar } from "@fortawesome/free-solid-svg-icons";
+import { faCartShopping } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import { useEffect, useState } from "react";
-import MainSlider from '../MainSlider/MainSlider'
+import MainSlider from "../MainSlider/MainSlider";
 
 const Home = () => {
-  let [productList, setProductList] = useState([]);
-  let [currentPage, setCurrentPage] = useState(1);
-  let [numberOfPages, setNumberOfPages] = useState(0);
-  let [isLoading, setIsLoading] = useState(true);
+  const [productList, setProductList] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [numberOfPages, setNumberOfPages] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
 
   function getAllProducts(page = 1) {
     setIsLoading(true);
     axios
-      .get(
-        `https://ecommerce.routemisr.com/api/v1/products?page=${page}&limit=12`
-      )
+      .get(`https://ecommerce.routemisr.com/api/v1/products?page=${page}&limit=12`)
       .then((res) => {
-        console.log(res.data);
         setNumberOfPages(res.data.metadata.numberOfPages);
         setCurrentPage(page);
         setProductList(res.data.data);
@@ -25,87 +23,106 @@ const Home = () => {
       })
       .catch((err) => {
         console.log(err);
+        setIsLoading(false);
       });
   }
+
   useEffect(() => {
     getAllProducts();
   }, []);
+
+  const paginationBase =
+    "flex items-center justify-center text-text-muted bg-neutral-white border border-neutral-border-medium font-medium text-sm px-3 h-9 cursor-pointer transition-colors hover:bg-neutral-bg-medium hover:text-text-heading select-none";
+
   return (
     <>
       {isLoading ? (
-        <div className="w-full flex justify-center translate-y-50">
-          <span className="loader mx-auto"></span>
+        <div className="flex justify-center items-center h-[60vh]">
+          <span className="loader"></span>
         </div>
-
       ) : (
-        <div className="w-11/12 mx-auto">
+        <div className="w-11/12 mx-auto py-6">
+          {/* Slider */}
           <MainSlider />
+
+          {/* Product grid */}
           <div className="flex flex-wrap -mx-2">
-            {productList?.map((product) => {
-              return (
-                <div key={product.id} className="w-2/12 px-2 mb-4">
-                  <div className="item border border-brand p-4 group overflow-hidden">
-                    <div className="relative overflow-hidden mb-1">
-                      <img
-                        className="w-full block"
-                        src={product.imageCover}
-                        alt={product.title}
-                      />
-                      <button className="btn absolute bottom-0 left-0 w-full translate-y-full group-hover:translate-y-0 duration-200">
-                        Add To Cart
-                      </button>
-                    </div>
-                    <h5 className="text-brand text-sm">
+            {productList?.map((product) => (
+              <div key={product.id} className="w-2/12 px-2 mb-5">
+                <div className="group border border-neutral-border rounded-base overflow-hidden bg-neutral-white shadow-card hover:shadow-md transition-shadow duration-300">
+                  {/* Image + hover cart icon */}
+                  <div className="relative overflow-hidden">
+                    <img
+                      className="w-full block h-44 object-cover transition-transform duration-300 group-hover:scale-105"
+                      src={product.imageCover}
+                      alt={product.title}
+                    />
+                    <button
+                      className="absolute top-2 right-2 w-9 h-9 rounded-full bg-white shadow-md flex items-center justify-center text-primary opacity-0 group-hover:opacity-100 translate-x-3 group-hover:translate-x-0 transition-all duration-300 hover:bg-primary hover:text-white"
+                      aria-label="Add to cart"
+                    >
+                      <FontAwesomeIcon icon={faCartShopping} />
+                    </button>
+                  </div>
+
+                  {/* Card info */}
+                  <div className="p-3">
+                    <p className="text-primary text-xs font-medium uppercase tracking-wide mb-1">
                       {product.category.name}
-                    </h5>
-                    <h2 className="text-lg">
-                      {product.title.split(" ").slice(0, 2).join(" ")}
+                    </p>
+                    <h2 className="text-text-heading text-sm font-semibold leading-snug mb-2 truncate">
+                      {product.title.split(" ").slice(0, 3).join(" ")}
                     </h2>
-                    <div className="flex justify-between">
-                      <span>{product.price}</span>
-                      <span>
+                    <div className="flex justify-between items-center">
+                      <span className="text-text-heading font-bold text-sm">
+                        {product.price} EGP
+                      </span>
+                      <span className="flex items-center gap-1 text-xs text-text-muted">
                         {product.ratingsAverage}
-                        <FontAwesomeIcon
-                          icon={faStar}
-                          className="text-yellow-500"
-                        />
+                        <FontAwesomeIcon icon={faStar} className="text-yellow-400" />
+                        
                       </span>
                     </div>
                   </div>
                 </div>
-              );
-            })}
+              </div>
+            ))}
           </div>
 
-          <nav aria-label="Page navigation example">
-            <ul className="flex -space-x-px text-sm justify-center">
+          {/* Pagination */}
+          <nav aria-label="Product pagination" className="mt-4 mb-8">
+            <ul className="flex justify-center -space-x-px text-sm">
               <li>
                 <a
-                  onClick={() =>
-                    currentPage > 1 && getAllProducts(currentPage - 1)
-                  }
-                  className="flex items-center justify-center text-body bg-neutral-secondary-medium box-border border border-default-medium hover:bg-neutral-tertiary-medium hover:text-heading font-medium rounded-s-base text-sm px-3 h-9 focus:outline-none cursor-pointer"
+                  onClick={() => currentPage > 1 && getAllProducts(currentPage - 1)}
+                  className={`${paginationBase} rounded-s-base ${currentPage === 1 ? "opacity-40 cursor-not-allowed" : ""}`}
                 >
                   Previous
                 </a>
               </li>
+
               {Array(numberOfPages)
                 .fill(null)
-                .map((_, index) => {
-                  return (
-                    <li key={index} onClick={() => getAllProducts(index + 1)}>
-                      <a className="flex items-center justify-center text-body bg-neutral-secondary-medium box-border border border-default-medium hover:bg-neutral-tertiary-medium hover:text-heading font-medium text-sm px-3 h-9 focus:outline-none cursor-pointer">
-                        {index + 1}
-                      </a>
-                    </li>
-                  );
-                })}
-              <li
-                onClick={() =>
-                  currentPage < numberOfPages && getAllProducts(currentPage + 1)
-                }
-              >
-                <a className="flex items-center justify-center text-body bg-neutral-secondary-medium box-border border border-default-medium hover:bg-neutral-tertiary-medium hover:text-heading font-medium rounded-e-base text-sm px-3 h-9 focus:outline-none cursor-pointer">
+                .map((_, index) => (
+                  <li key={index}>
+                    <a
+                      onClick={() => getAllProducts(index + 1)}
+                      className={`${paginationBase} ${
+                        currentPage === index + 1
+                          ? "bg-primary text-white border-primary hover:bg-primary-strong hover:text-white"
+                          : ""
+                      }`}
+                    >
+                      {index + 1}
+                    </a>
+                  </li>
+                ))}
+
+              <li>
+                <a
+                  onClick={() => currentPage < numberOfPages && getAllProducts(currentPage + 1)}
+                  className={`${paginationBase} rounded-e-base ${currentPage === numberOfPages ? "opacity-40 cursor-not-allowed" : ""}`}
+                >
                   Next
                 </a>
               </li>

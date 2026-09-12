@@ -3,37 +3,50 @@ const Slider = SliderLib.default || SliderLib;
 import sliderImg1 from "../../assets/images/slider-image-1.jpeg";
 import sliderImg2 from "../../assets/images/slider-2.jpeg";
 import sliderImg3 from "../../assets/images/slider-image-3.jpeg";
+import sideImg1 from "../../assets/images/grocery-banner.png";
+import sideImg2 from "../../assets/images/grocery-banner-2.jpeg";
 
 const MainSlider = () => {
-  var settings = {
-    dots: false,
+  const settings = {
+    dots: true,
     infinite: true,
     autoplay: true,
-    arrows: false ,     
-    speed: 100,
+    arrows: false,
+    speed: 600,
+    autoplaySpeed: 3500,
     slidesToShow: 1,
     slidesToScroll: 1,
   };
+
   return (
-    <div className="flex">
-      <div className="w-9/12">
+    <div className="flex mb-8 rounded-base overflow-hidden shadow-card">
+      {/* Main auto-playing slider — 3/4 width */}
+      <div className="w-3/4">
         <Slider {...settings}>
-          <div className="">
-            <img className="w-full h-96 object-cover" src={sliderImg1} />
-          </div>
-          <div>
-            <img className="w-full h-96 object-cover" src={sliderImg2} />
-          </div>
-          <div>
-            <img className="w-full h-96 object-cover" src={sliderImg3} />
-          </div>
+          {[sliderImg1, sliderImg2, sliderImg3].map((src, i) => (
+            <div key={i}>
+              <img
+                className="w-full h-80 object-cover block"
+                src={src}
+                alt={`Slide ${i + 1}`}
+              />
+            </div>
+          ))}
         </Slider>
       </div>
-      <div className="w-3/12">
-        <div>
-            <img src={sliderImg1} className="h-48 object-cover" />
-            <img src={sliderImg2} className="h-48 object-cover"/>
-        </div>
+
+      {/* Static side banners — 1/4 width */}
+      <div className="w-1/4 flex flex-col">
+        <img
+          src={sideImg1}
+          className="w-full h-40 object-cover block"
+          alt="Banner 1"
+        />
+        <img
+          src={sideImg2}
+          className="w-full h-40 object-cover block"
+          alt="Banner 2"
+        />
       </div>
     </div>
   );
