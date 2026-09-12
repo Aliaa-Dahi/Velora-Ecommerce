@@ -21,6 +21,7 @@ function App() {
         { path: "login", Component: Login },
         { path: "register", Component: Signup },
         { path: "forgetPassword", Component: ForgetPassword },
+        { path: "updatePassword", Component: UpdatePassword },
 
         // protected routes — require a token
         {
