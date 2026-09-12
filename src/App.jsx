@@ -1,6 +1,7 @@
 import "./App.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Layout from "./components/Layout/Layout";
+import Home from "./components/Home/Home";
 import Product from "./components/Product/Product";
 import Cart from "./components/Cart/Cart";
 import Login from "./components/Login/Login";
@@ -25,7 +26,7 @@ function App() {
         {
           Component: ProtectedRoutes,
           children: [
-            { index: true, Component: Product },
+            { index: true, Component: Home },
             { path: "product", Component: Product },
             { path: "cart", Component: Cart },
             { path: "updatePassword", Component: UpdatePassword },
