@@ -53,3 +53,7 @@ body {
 .active {
   color: var(--main-color);
 }
+
+.btn {
+  @apply bg-brand-medium text-white p-2 rounded hover:bg-brand-strong
+}
