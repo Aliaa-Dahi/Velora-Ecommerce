@@ -1,34 +1,31 @@
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import SectionTitle from "../SectionTitle/SectionTitle";
 
-const CategorySlider = () => {
-  const [categories, setCategories] = useState([]);
+function fetchCategories() {
+  return axios
+    .get(`https://ecommerce.routemisr.com/api/v1/categories`)
+    .then((res) => res.data.data);
+}
 
-  useEffect(() => {
-    axios
-      .get(`https://ecommerce.routemisr.com/api/v1/categories`)
-      .then((res) => setCategories(res.data.data))
-      .catch((err) => console.log(err));
-  }, []);
+const CategorySlider = () => {
+  const { data: categories = [] } = useQuery({
+    queryKey: ["categories"],
+    queryFn: fetchCategories,
+    staleTime: 1000 * 60 * 10, // cache for 10 minutes — categories rarely change
+  });
 
   if (!categories.length) return null;
 
-  // Duplicate the list so the animation loops seamlessly
   const items = [...categories, ...categories];
 
   return (
     <div className="mb-8">
       <SectionTitle title="Shop by Category" />
-
-      {/* Overflow hidden container — clips the scrolling track */}
       <div className="overflow-hidden">
         <div className="marquee-track">
           {items.map((category, i) => (
-            <div
-              key={`${category._id}-${i}`}
-              className="w-36 sm:w-44 shrink-0 px-2"
-            >
+            <div key={`${category._id}-${i}`} className="w-36 sm:w-44 shrink-0 px-2">
               <div className="group cursor-pointer rounded-base overflow-hidden border border-neutral-border bg-neutral-white shadow-card hover:shadow-md hover:border-primary transition-all duration-300">
                 <div className="overflow-hidden">
                   <img

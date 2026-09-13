@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCartShopping, faTag, faBoxOpen } from "@fortawesome/free-solid-svg-icons";
 import SectionTitle from "../SectionTitle/SectionTitle";
+import { useQuery } from "@tanstack/react-query";
 
 // Renders 5 stars with exact partial fill (quarter, half, three-quarter, full)
 const StarRating = ({ rating, size = "text-base" }) => {
@@ -33,25 +34,34 @@ const StarRating = ({ rating, size = "text-base" }) => {
 
 const ProductDetails = () => {
   const { id } = useParams();
-  const [product, setProduct] = useState(null);
+  // const [product, setProduct] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+  // const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    axios
-      .get(`https://ecommerce.routemisr.com/api/v1/products/${id}`)
-      .then((res) => {
-        setProduct(res.data.data);
-        console.log(res.data.data);
-        setSelectedImage(res.data.data.imageCover);
-        setIsLoading(false);
-      })
-      .catch((err) => {
-        console.log(err);
-        setIsLoading(false);
-      });
-  }, [id]);
+  // useEffect(() => {
+  //   axios
+  //     .get(`https://ecommerce.routemisr.com/api/v1/products/${id}`)
+  //     .then((res) => {
+  //       setProduct(res.data.data);
+  //       console.log(res.data.data);
+  //       setSelectedImage(res.data.data.imageCover);
+  //       setIsLoading(false);
+  //     })
+  //     .catch((err) => {
+  //       console.log(err);
+  //       setIsLoading(false);
+  //     });
+  // }, [id]);
 
+  let { data, isLoading } = useQuery({
+    queryKey: ["productDetails", id],
+    queryFn: () =>
+      axios
+        .get(`https://ecommerce.routemisr.com/api/v1/products/${id}`)
+        .then((res) => setSelectedImage(res.data.data.imageCover) || res.data.data),
+  });
+
+  const product = data;
 
   if (isLoading) {
     return (
@@ -84,7 +94,7 @@ const ProductDetails = () => {
 
             {/* Thumbnails */}
             <div className="flex gap-2 flex-wrap justify-center">
-              {product.images.map((img, i) => (
+              {(product.images ?? []).map((img, i) => (
                 <button
                   key={i}
                   onClick={() => setSelectedImage(img)}
@@ -109,10 +119,12 @@ const ProductDetails = () => {
 
             {/* Category & brand */}
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-xs font-medium text-primary uppercase tracking-wide bg-primary-soft px-2 py-1 rounded-xs">
-                {product.category.name}
-              </span>
-              {product.brand && (
+              {product.category?.name && (
+                <span className="text-xs font-medium text-primary uppercase tracking-wide bg-primary-soft px-2 py-1 rounded-xs">
+                  {product.category.name}
+                </span>
+              )}
+              {product.brand?.name && (
                 <span className="text-xs font-medium text-text-muted bg-neutral-bg-medium px-2 py-1 rounded-xs">
                   {product.brand.name}
                 </span>
