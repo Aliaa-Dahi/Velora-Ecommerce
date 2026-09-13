@@ -10,6 +10,7 @@ import Notfound from "./components/Notfound/Notfound";
 import UpdatePassword from "./components/UpdatePassword/UpdatePassword";
 import ForgetPassword from "./components/ForgetPassword/ForgetPassword";
 import ProtectedRoutes from "./components/ProtectedRoutes/ProtectedRoutes";
+import ProductDetails from "./components/ProductDetails/ProductDetails";
 
 function App() {
   let routes = createBrowserRouter([
@@ -31,6 +32,8 @@ function App() {
             { path: "product", Component: Product },
             { path: "cart", Component: Cart },
             { path: "updatePassword", Component: UpdatePassword },
+            {path: "forgetPassword", Component: ForgetPassword}, 
+            {path: "productDetails/:id", Component: ProductDetails},
           ],
         },
 

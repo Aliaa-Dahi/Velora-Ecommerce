@@ -20,13 +20,13 @@ const MainSlider = () => {
 
   return (
     <div className="flex mb-8 rounded-base overflow-hidden shadow-card">
-      {/* Main auto-playing slider — 3/4 width */}
-      <div className="w-3/4 leading-none">
+      {/* Main auto-playing slider */}
+      <div className="w-full md:w-3/4 leading-none">
         <Slider {...settings}>
           {[sliderImg1, sliderImg2, sliderImg3].map((src, i) => (
             <div key={i} className="leading-none">
               <img
-                className="w-full h-80 object-cover block"
+                className="w-full h-52 sm:h-64 md:h-80 object-cover block"
                 src={src}
                 alt={`Slide ${i + 1}`}
               />
@@ -35,18 +35,10 @@ const MainSlider = () => {
         </Slider>
       </div>
 
-      {/* Static side banners — 1/4 width */}
-      <div className="w-1/4 flex flex-col">
-        <img
-          src={sideImg1}
-          className="w-full h-40 object-cover block"
-          alt="Banner 1"
-        />
-        <img
-          src={sideImg2}
-          className="w-full h-40 object-cover block"
-          alt="Banner 2"
-        />
+      {/* Static side banners — hidden on mobile */}
+      <div className="hidden md:flex w-1/4 flex-col">
+        <img src={sideImg1} className="w-full h-40 object-cover block" alt="Banner 1" />
+        <img src={sideImg2} className="w-full h-40 object-cover block" alt="Banner 2" />
       </div>
     </div>
   );

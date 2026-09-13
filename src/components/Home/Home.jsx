@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import MainSlider from "../MainSlider/MainSlider";
 import CategorySlider from '../CategorySlider/CategorySlider';
 import SectionTitle from "../SectionTitle/SectionTitle";
+import { Link } from "react-router-dom";
 
 const Home = () => {
   const [productList, setProductList] = useState([]);
@@ -52,7 +53,8 @@ const Home = () => {
           <SectionTitle title="Featured Products" subtitle="Explore our latest arrivals" />
           <div className="flex flex-wrap -mx-2">
             {productList?.map((product) => (
-              <div key={product.id} className="w-2/12 px-2 mb-5">
+              <div key={product.id} className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 xl:w-2/12 px-2 mb-5">
+                <Link to={'/productDetails/' + product.id}>
                 <div className="group border border-neutral-border rounded-base overflow-hidden bg-neutral-white shadow-card hover:shadow-md transition-shadow duration-300">
                   {/* Image + hover cart icon */}
                   <div className="relative overflow-hidden">
@@ -89,6 +91,7 @@ const Home = () => {
                     </div>
                   </div>
                 </div>
+                </Link>
               </div>
             ))}
           </div>
