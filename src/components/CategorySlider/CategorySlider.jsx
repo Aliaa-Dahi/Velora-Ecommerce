@@ -1,19 +1,9 @@
-import axios from "axios";
-import { useQuery } from "@tanstack/react-query";
+import useApi from "../../Hooks/useApi";
 import SectionTitle from "../SectionTitle/SectionTitle";
 
-function fetchCategories() {
-  return axios
-    .get(`https://ecommerce.routemisr.com/api/v1/categories`)
-    .then((res) => res.data.data);
-}
-
 const CategorySlider = () => {
-  const { data: categories = [] } = useQuery({
-    queryKey: ["categories"],
-    queryFn: fetchCategories,
-    staleTime: 1000 * 60 * 10, // cache for 10 minutes — categories rarely change
-  });
+  const { data } = useApi("categories");
+  const categories = data?.data ?? [];
 
   if (!categories.length) return null;
 

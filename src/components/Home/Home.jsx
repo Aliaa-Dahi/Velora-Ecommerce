@@ -1,12 +1,11 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar, faCartShopping } from "@fortawesome/free-solid-svg-icons";
-import axios from "axios";
 import { useState } from "react";
 import MainSlider from "../MainSlider/MainSlider";
 import CategorySlider from "../CategorySlider/CategorySlider";
 import SectionTitle from "../SectionTitle/SectionTitle";
 import { Link } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import useApi from "../../Hooks/useApi";
 
 const Home = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -15,17 +14,7 @@ const Home = () => {
     setCurrentPage(page);
   }
 
-  function fetchProducts(page) {
-    return axios
-      .get(`https://ecommerce.routemisr.com/api/v1/products?page=${page}&limit=12`)
-      .then((res) => res.data);
-  }
-
-  const { data, isLoading } = useQuery({
-    queryKey: ["products", currentPage],
-    queryFn: () => fetchProducts(currentPage),
-    keepPreviousData: true,
-  });
+  const { data, isLoading } = useApi('products', currentPage);
 
   const productList = data?.data ?? [];
   const numberOfPages = data?.metadata?.numberOfPages ?? 0;
@@ -71,7 +60,7 @@ const Home = () => {
                         {product.category?.name}
                       </p>
                       <h2 className="text-text-heading text-sm font-semibold leading-snug mb-2 truncate">
-                        {product.title.split(" ").slice(0, 3).join(" ")}
+                        {product.title?.split(" ").slice(0, 3).join(" ")}
                       </h2>
                       <div className="flex justify-between items-center">
                         <span className="text-text-heading font-bold text-sm">
@@ -125,10 +114,7 @@ const Home = () => {
 
               <li>
                 <a
-                  onClick={() =>
-                    currentPage < numberOfPages &&
-                    setCurrentPage(currentPage + 1)
-                  }
+                  onClick={() => currentPage < numberOfPages && goToPage(currentPage + 1)}
                   className={`${paginationBase} rounded-e-base ${
                     currentPage === numberOfPages
                       ? "opacity-40 cursor-not-allowed"
