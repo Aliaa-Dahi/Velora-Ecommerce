@@ -1,17 +1,10 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import axios from "axios";
-import Cookies from "js-cookie";
-
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faCartShopping,
-  faTag,
-  faBoxOpen,
-} from "@fortawesome/free-solid-svg-icons";
+import { faCartShopping, faTag, faBoxOpen } from "@fortawesome/free-solid-svg-icons";
 import SectionTitle from "../SectionTitle/SectionTitle";
 import useApi from "../../Hooks/useApi";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useCart } from "../../Context/CartContextProvider";
 
 // Renders 5 stars with exact partial fill (quarter, half, three-quarter, full)
 const StarRating = ({ rating, size = "text-base" }) => {
@@ -57,15 +50,7 @@ const ProductDetails = () => {
 
   const { data: productData, isLoading } = useApi(`products/${id}`);
   const product = productData?.data;
-
-  const { mutate: addToCart, isPending: isAddingToCart } = useMutation({
-    mutationFn: (productId) =>
-      axios.post(
-        `https://ecommerce.routemisr.com/api/v1/cart`,
-        { productId },
-        { headers: { token: Cookies.get("token") } }
-      ),
-  });
+  const { addToCart, isAddingToCart } = useCart();
 
   useEffect(() => {
     if (product?.imageCover) {

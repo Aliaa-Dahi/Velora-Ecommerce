@@ -1,16 +1,21 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrashCan, faShoppingBag } from "@fortawesome/free-solid-svg-icons";
 import SectionTitle from "../SectionTitle/SectionTitle";
-import useApi from "../../Hooks/useApi";
 import { Link } from "react-router-dom";
+import { useCart } from "../../Context/CartContextProvider";
 
 const Cart = () => {
-  const { data, isLoading } = useApi("cart", 1, true);
-  const totalCartPrice = data?.data?.totalCartPrice ?? 0;
-  const numOfCartItems = data?.numOfCartItems ?? 0;
-  const products = data?.data?.products ?? [];
+  const {
+    cartItems,
+    totalCartPrice,
+    numOfCartItems,
+    isCartLoading,
+    removeFromCart,
+    updateCount,
+    isUpdatingCount,
+  } = useCart();
 
-  if (isLoading) {
+  if (isCartLoading) {
     return (
       <div className="flex justify-center items-center h-[60vh]">
         <span className="loader"></span>
@@ -18,7 +23,7 @@ const Cart = () => {
     );
   }
 
-  if (!products.length) {
+  if (!cartItems.length) {
     return (
       <div className="w-11/12 mx-auto py-8">
         <SectionTitle title="Shop Cart" />
@@ -40,7 +45,8 @@ const Cart = () => {
       {/* Summary bar */}
       <div className="flex items-center justify-between mb-6 bg-neutral-bg-soft border border-neutral-border rounded-base px-5 py-3">
         <p className="text-text-muted text-sm">
-          <span className="font-semibold text-text-heading">{numOfCartItems}</span> item{numOfCartItems !== 1 ? "s" : ""} in cart
+          <span className="font-semibold text-text-heading">{numOfCartItems}</span>{" "}
+          item{numOfCartItems !== 1 ? "s" : ""} in cart
         </p>
         <p className="text-primary font-bold text-base">
           Total: {totalCartPrice.toLocaleString()} EGP
@@ -49,7 +55,7 @@ const Cart = () => {
 
       {/* Cart items */}
       <div className="flex flex-col gap-3">
-        {products.map((item) => (
+        {cartItems.map((item) => (
           <div
             key={item._id}
             className="flex items-center gap-4 bg-neutral-white border border-neutral-border rounded-base px-4 py-3 shadow-card"
@@ -86,19 +92,30 @@ const Cart = () => {
             <div className="flex flex-col sm:flex-row items-center gap-3 shrink-0">
               {/* Quantity controls */}
               <div className="flex items-center border border-neutral-border rounded-base overflow-hidden">
-                <button className="w-8 h-8 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-colors text-sm font-bold border-r border-neutral-border">
+                <button
+                  onClick={() => updateCount({ productId: item.product.id, count: item.count - 1 })}
+                  disabled={item.count <= 1 || isUpdatingCount}
+                  className="w-8 h-8 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-colors text-sm font-bold border-r border-neutral-border disabled:opacity-40"
+                >
                   -
                 </button>
                 <span className="text-text-heading font-semibold text-sm w-8 text-center">
                   {item.count}
                 </span>
-                <button className="w-8 h-8 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-colors text-sm font-bold border-l border-neutral-border">
+                <button
+                  onClick={() => updateCount({ productId: item.product.id, count: item.count + 1 })}
+                  disabled={isUpdatingCount}
+                  className="w-8 h-8 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-colors text-sm font-bold border-l border-neutral-border disabled:opacity-40"
+                >
                   +
                 </button>
               </div>
 
               {/* Remove */}
-              <button className="flex items-center gap-1.5 text-danger-strong text-xs hover:underline whitespace-nowrap">
+              <button
+                onClick={() => removeFromCart(item.product.id)}
+                className="flex items-center gap-1.5 text-danger-strong text-xs hover:underline whitespace-nowrap"
+              >
                 <FontAwesomeIcon icon={faTrashCan} />
                 Remove
               </button>
@@ -111,7 +128,9 @@ const Cart = () => {
       <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-neutral-border pt-6">
         <div>
           <p className="text-text-muted text-sm">Order total</p>
-          <p className="text-text-heading text-2xl font-bold">{totalCartPrice.toLocaleString()} EGP</p>
+          <p className="text-text-heading text-2xl font-bold">
+            {totalCartPrice.toLocaleString()} EGP
+          </p>
         </div>
         <button className="w-full sm:w-auto bg-primary hover:bg-primary-strong text-white font-medium text-sm px-10 py-3 rounded-base transition-colors shadow-xs">
           Proceed to Checkout
