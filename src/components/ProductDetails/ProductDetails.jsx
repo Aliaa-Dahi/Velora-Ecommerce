@@ -1,67 +1,62 @@
-import axios from "axios";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCartShopping, faTag, faBoxOpen } from "@fortawesome/free-solid-svg-icons";
 import SectionTitle from "../SectionTitle/SectionTitle";
-import { useQuery } from "@tanstack/react-query";
+import useApi from "../../Hooks/useApi";
+import { useCart } from "../../Context/CartContextProvider";
 
 // Renders 5 stars with exact partial fill (quarter, half, three-quarter, full)
 const StarRating = ({ rating, size = "text-base" }) => {
   return (
     <div className={`flex gap-0.5 ${size}`}>
-      {Array(5).fill(null).map((_, i) => {
-        const fill = Math.min(Math.max(rating - i, 0), 1); // 0 to 1
-        const percent = Math.round(fill * 100);
-        return (
-          <span key={i} className="relative inline-block w-[1em] h-[1em]">
-            {/* Gray base star */}
-            <svg viewBox="0 0 24 24" className="w-full h-full fill-neutral-border absolute top-0 left-0">
-              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-            </svg>
-            {/* Yellow fill star clipped to percent */}
-            {percent > 0 && (
-              <svg viewBox="0 0 24 24" className="w-full h-full absolute top-0 left-0" style={{ clipPath: `inset(0 ${100 - percent}% 0 0)` }}>
-                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="#facc15"/>
+      {Array(5)
+        .fill(null)
+        .map((_, i) => {
+          const fill = Math.min(Math.max(rating - i, 0), 1); // 0 to 1
+          const percent = Math.round(fill * 100);
+          return (
+            <span key={i} className="relative inline-block w-[1em] h-[1em]">
+              {/* Gray base star */}
+              <svg
+                viewBox="0 0 24 24"
+                className="w-full h-full fill-neutral-border absolute top-0 left-0"
+              >
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
               </svg>
-            )}
-          </span>
-        );
-      })}
+              {/* Yellow fill star clipped to percent */}
+              {percent > 0 && (
+                <svg
+                  viewBox="0 0 24 24"
+                  className="w-full h-full absolute top-0 left-0"
+                  style={{ clipPath: `inset(0 ${100 - percent}% 0 0)` }}
+                >
+                  <path
+                    d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+                    fill="#facc15"
+                  />
+                </svg>
+              )}
+            </span>
+          );
+        })}
     </div>
   );
 };
 
 const ProductDetails = () => {
   const { id } = useParams();
-  // const [product, setProduct] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
-  // const [isLoading, setIsLoading] = useState(true);
 
-  // useEffect(() => {
-  //   axios
-  //     .get(`https://ecommerce.routemisr.com/api/v1/products/${id}`)
-  //     .then((res) => {
-  //       setProduct(res.data.data);
-  //       console.log(res.data.data);
-  //       setSelectedImage(res.data.data.imageCover);
-  //       setIsLoading(false);
-  //     })
-  //     .catch((err) => {
-  //       console.log(err);
-  //       setIsLoading(false);
-  //     });
-  // }, [id]);
+  const { data: productData, isLoading } = useApi(`products/${id}`);
+  const product = productData?.data;
+  const { addToCart, isAddingToCart } = useCart();
 
-  let { data, isLoading } = useQuery({
-    queryKey: ["productDetails", id],
-    queryFn: () =>
-      axios
-        .get(`https://ecommerce.routemisr.com/api/v1/products/${id}`)
-        .then((res) => setSelectedImage(res.data.data.imageCover) || res.data.data),
-  });
-
-  const product = data;
+  useEffect(() => {
+    if (product?.imageCover) {
+      setSelectedImage(product.imageCover);
+    }
+  }, [product?.imageCover]);
 
   if (isLoading) {
     return (
@@ -71,16 +66,16 @@ const ProductDetails = () => {
     );
   }
 
-
   const discount = product.priceAfterDiscount
-    ? Math.round(((product.price - product.priceAfterDiscount) / product.price) * 100)
+    ? Math.round(
+        ((product.price - product.priceAfterDiscount) / product.price) * 100
+      )
     : null;
 
   return (
     <div className="w-11/12 mx-auto py-10">
       <div className="bg-neutral-white border border-neutral-border rounded-base shadow-card p-8">
         <div className="flex flex-col md:flex-row gap-8 md:gap-10">
-
           {/* ── Left: images ── */}
           <div className="w-full md:w-5/12 flex flex-col gap-3">
             {/* Main image */}
@@ -116,7 +111,6 @@ const ProductDetails = () => {
 
           {/* ── Right: info ── */}
           <div className="w-full md:w-7/12 flex flex-col gap-4">
-
             {/* Category & brand */}
             <div className="flex items-center gap-2 flex-wrap">
               {product.category?.name && (
@@ -182,11 +176,21 @@ const ProductDetails = () => {
             <div className="flex gap-6">
               <div className="flex items-center gap-2 text-sm text-text-muted">
                 <FontAwesomeIcon icon={faBoxOpen} className="text-primary" />
-                <span><span className="font-semibold text-text-heading">{product.sold}</span> sold</span>
+                <span>
+                  <span className="font-semibold text-text-heading">
+                    {product.sold}
+                  </span>{" "}
+                  sold
+                </span>
               </div>
               <div className="flex items-center gap-2 text-sm text-text-muted">
                 <FontAwesomeIcon icon={faTag} className="text-primary" />
-                <span><span className="font-semibold text-text-heading">{product.quantity}</span> in stock</span>
+                <span>
+                  <span className="font-semibold text-text-heading">
+                    {product.quantity}
+                  </span>{" "}
+                  in stock
+                </span>
               </div>
             </div>
 
@@ -194,9 +198,13 @@ const ProductDetails = () => {
             <div className="h-px bg-neutral-border w-full"></div>
 
             {/* Add to cart */}
-            <button className="flex items-center justify-center gap-3 w-full bg-primary hover:bg-primary-strong text-white font-medium text-sm py-3 rounded-base transition-colors duration-200 shadow-xs">
+            <button
+              onClick={() => addToCart(product.id)}
+              disabled={isAddingToCart}
+              className="flex items-center justify-center gap-3 w-full bg-primary hover:bg-primary-strong text-white font-medium text-sm py-3 rounded-base transition-colors duration-200 shadow-xs disabled:opacity-60"
+            >
               <FontAwesomeIcon icon={faCartShopping} />
-              Add to Cart
+              {isAddingToCart ? "Adding..." : "Add to Cart"}
             </button>
           </div>
         </div>
@@ -221,13 +229,21 @@ const ProductDetails = () => {
                           {review.user?.name || "Anonymous"}
                         </span>
                         <span className="text-text-muted text-xs">
-                          {new Date(review.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}
+                          {new Date(review.createdAt).toLocaleDateString(
+                            "en-US",
+                            { year: "numeric", month: "short", day: "numeric" }
+                          )}
                         </span>
                       </div>
                     </div>
-                    <StarRating rating={review.rating ?? review.ratings ?? 0} size="text-sm" />
+                    <StarRating
+                      rating={review.rating ?? review.ratings ?? 0}
+                      size="text-sm"
+                    />
                   </div>
-                  <p className="text-text-muted text-sm leading-relaxed">{review.review}</p>
+                  <p className="text-text-muted text-sm leading-relaxed">
+                    {review.review}
+                  </p>
                 </div>
               ))}
             </div>

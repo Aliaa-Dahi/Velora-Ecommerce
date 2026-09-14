@@ -12,6 +12,9 @@ import ForgetPassword from "./components/ForgetPassword/ForgetPassword";
 import ProtectedRoutes from "./components/ProtectedRoutes/ProtectedRoutes";
 import ProductDetails from "./components/ProductDetails/ProductDetails";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import CartContextProvider from "./Context/CartContextProvider";
+
+const client = new QueryClient();
 
 function App() {
   let routes = createBrowserRouter([
@@ -43,10 +46,11 @@ function App() {
     },
   ]);
 
-  let client = new QueryClient()
   return (
     <QueryClientProvider client={client}>
-      <RouterProvider router={routes} />;
+      <CartContextProvider>
+        <RouterProvider router={routes} />
+      </CartContextProvider>
     </QueryClientProvider>
   );
 }
