@@ -6,16 +6,35 @@ import { useCart } from "../../Context/CartContextProvider";
 
 const Cart = () => {
   const {
-    cartItems,
-    totalCartPrice,
+    cartData,
     numOfCartItems,
-    isCartLoading,
-    removeFromCart,
-    updateCount,
-    isUpdatingCount,
+    isLoading,
+    clearUserCart,
+    updateCountApi,
+    setCartData,
+    setNumOfCartItems,
+    getUserCart,
   } = useCart();
 
-  if (isCartLoading) {
+  const products = cartData?.products ?? [];
+  const totalCartPrice = cartData?.totalCartPrice ?? 0;
+
+  async function handleRemove(productId) {
+    await clearUserCart(productId);
+    const req = await getUserCart();
+    setCartData(req.data.data);
+    setNumOfCartItems(req.data.numOfCartItems);
+  }
+
+  async function handleUpdateCount(productId, count) {
+    await updateCountApi({ productId, count });
+    const req = await getUserCart();
+    setCartData(req.data.data);
+    setNumOfCartItems(req.data.numOfCartItems);
+  }
+
+
+  if (isLoading) {
     return (
       <div className="flex justify-center items-center h-[60vh]">
         <span className="loader"></span>
@@ -23,7 +42,7 @@ const Cart = () => {
     );
   }
 
-  if (!cartItems.length) {
+  if (!products.length) {
     return (
       <div className="w-11/12 mx-auto py-8">
         <SectionTitle title="Shop Cart" />
@@ -55,12 +74,11 @@ const Cart = () => {
 
       {/* Cart items */}
       <div className="flex flex-col gap-3">
-        {cartItems.map((item) => (
+        {products.map((item) => (
           <div
             key={item._id}
             className="flex items-center gap-4 bg-neutral-white border border-neutral-border rounded-base px-4 py-3 shadow-card"
           >
-            {/* Image */}
             <Link to={`/productDetails/${item.product.id}`} className="shrink-0">
               <img
                 src={item.product.imageCover}
@@ -69,7 +87,6 @@ const Cart = () => {
               />
             </Link>
 
-            {/* Info */}
             <div className="flex-1 min-w-0">
               <p className="text-primary text-xs font-medium uppercase tracking-wide mb-0.5">
                 {item.product.category?.name}
@@ -81,20 +98,18 @@ const Cart = () => {
               </Link>
               <p className="text-text-muted text-sm font-medium">
                 {item.price.toLocaleString()} EGP
-                <span className="text-text-muted font-normal"> × {item.count}</span>
+                <span className="font-normal"> × {item.count}</span>
                 <span className="ml-2 font-bold text-text-heading">
                   = {(item.price * item.count).toLocaleString()} EGP
                 </span>
               </p>
             </div>
 
-            {/* Quantity + remove */}
             <div className="flex flex-col sm:flex-row items-center gap-3 shrink-0">
-              {/* Quantity controls */}
               <div className="flex items-center border border-neutral-border rounded-base overflow-hidden">
                 <button
-                  onClick={() => updateCount({ productId: item.product.id, count: item.count - 1 })}
-                  disabled={item.count <= 1 || isUpdatingCount}
+                  onClick={() => handleUpdateCount(item.product.id, item.count - 1)}
+                  disabled={item.count <= 1}
                   className="w-8 h-8 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-colors text-sm font-bold border-r border-neutral-border disabled:opacity-40"
                 >
                   -
@@ -103,17 +118,15 @@ const Cart = () => {
                   {item.count}
                 </span>
                 <button
-                  onClick={() => updateCount({ productId: item.product.id, count: item.count + 1 })}
-                  disabled={isUpdatingCount}
-                  className="w-8 h-8 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-colors text-sm font-bold border-l border-neutral-border disabled:opacity-40"
+                  onClick={() => handleUpdateCount(item.product.id, item.count + 1)}
+                  className="w-8 h-8 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-colors text-sm font-bold border-l border-neutral-border"
                 >
                   +
                 </button>
               </div>
 
-              {/* Remove */}
               <button
-                onClick={() => removeFromCart(item.product.id)}
+                onClick={() => handleRemove(item.product.id)}
                 className="flex items-center gap-1.5 text-danger-strong text-xs hover:underline whitespace-nowrap"
               >
                 <FontAwesomeIcon icon={faTrashCan} />

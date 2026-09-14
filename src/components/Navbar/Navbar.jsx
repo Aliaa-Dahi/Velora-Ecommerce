@@ -4,10 +4,12 @@ import { faCartShopping } from "@fortawesome/free-solid-svg-icons";
 import logoImg from "../../assets/images/freshcart-logo.svg";
 import { useState } from "react";
 import { useCart } from "../../Context/CartContextProvider";
+import Cookies from "js-cookie";
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const { numOfCartItems } = useCart();
+  const isLoggedIn = !!Cookies.get("token");
 
   return (
     <nav className="bg-neutral-white fixed w-full z-20 top-0 start-0 border-b border-neutral-border shadow-xs">
@@ -18,14 +20,16 @@ const Navbar = () => {
 
         {/* Hamburger + cart icon on mobile */}
         <div className="flex items-center gap-3 md:hidden">
-          <Link to="/cart" className="relative text-text-muted hover:text-primary transition-colors">
-            <FontAwesomeIcon icon={faCartShopping} className="text-lg" />
-            {numOfCartItems > 0 && (
-              <span className="absolute -top-2 -right-2 bg-primary text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
-                {numOfCartItems}
-              </span>
-            )}
-          </Link>
+          {isLoggedIn && (
+            <Link to="/cart" className="relative text-text-muted hover:text-primary transition-colors">
+              <FontAwesomeIcon icon={faCartShopping} className="text-lg" />
+              {numOfCartItems > 0 && (
+                <span className="absolute -top-2 -right-2 bg-primary text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                  {numOfCartItems}
+                </span>
+              )}
+            </Link>
+          )}
           <button
             onClick={() => setMenuOpen(!menuOpen)}
             type="button"
@@ -69,33 +73,40 @@ const Navbar = () => {
 
           {/* Right side: cart icon + auth */}
           <ul className="font-medium flex flex-row flex-wrap items-center gap-3 md:gap-4 mt-3 md:mt-0 px-3 md:px-0">
-            {/* Cart icon — desktop only (mobile has it next to hamburger) */}
-            <li className="hidden md:block">
-              <Link to="/cart" className="relative text-text-muted hover:text-primary transition-colors">
-                <FontAwesomeIcon icon={faCartShopping} className="text-lg" />
-                {numOfCartItems > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-primary text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
-                    {numOfCartItems}
-                  </span>
-                )}
-              </Link>
-            </li>
+            {/* Cart icon — desktop only, logged in only */}
+            {isLoggedIn && (
+              <li className="hidden md:block">
+                <Link to="/cart" className="relative text-text-muted hover:text-primary transition-colors">
+                  <FontAwesomeIcon icon={faCartShopping} className="text-lg" />
+                  {numOfCartItems > 0 && (
+                    <span className="absolute -top-2 -right-2 bg-primary text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                      {numOfCartItems}
+                    </span>
+                  )}
+                </Link>
+              </li>
+            )}
 
-            <li>
-              <NavLink to="/login" onClick={() => setMenuOpen(false)} className="text-text-muted hover:text-primary text-sm transition-colors">
-                Login
-              </NavLink>
-            </li>
-            <li>
-              <NavLink to="/register" onClick={() => setMenuOpen(false)} className="text-text-muted hover:text-primary text-sm transition-colors">
-                Register
-              </NavLink>
-            </li>
-            <li>
-              <NavLink to="/logout" onClick={() => setMenuOpen(false)} className="text-text-muted hover:text-primary text-sm transition-colors">
-                Logout
-              </NavLink>
-            </li>
+            {isLoggedIn ? (
+              <li>
+                <NavLink to="/logout" onClick={() => setMenuOpen(false)} className="text-text-muted hover:text-primary text-sm transition-colors">
+                  Logout
+                </NavLink>
+              </li>
+            ) : (
+              <>
+                <li>
+                  <NavLink to="/login" onClick={() => setMenuOpen(false)} className="text-text-muted hover:text-primary text-sm transition-colors">
+                    Login
+                  </NavLink>
+                </li>
+                <li>
+                  <NavLink to="/register" onClick={() => setMenuOpen(false)} className="text-text-muted hover:text-primary text-sm transition-colors">
+                    Register
+                  </NavLink>
+                </li>
+              </>
+            )}
           </ul>
         </div>
       </div>

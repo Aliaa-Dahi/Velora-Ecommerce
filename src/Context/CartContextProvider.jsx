@@ -1,81 +1,71 @@
-import { createContext, useContext } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import useApi from "../Hooks/useApi";
 
 export const CartContext = createContext();
 export const useCart = () => useContext(CartContext);
 
 const baseURL = "https://ecommerce.routemisr.com/api/v1/cart";
-const headers = { headers: { token: Cookies.get("token") } };
+const headerOption = { headers: { token: Cookies.get("token") } };
 
 function getUserCart() {
-  return axios.get(baseURL, headers);
+  return axios.get(baseURL, headerOption);
 }
 
 function addToCartApi(productId) {
-  return axios.post(baseURL, { productId }, headers);
+  return axios.post(baseURL, { productId }, headerOption);
 }
 
-function removeFromCartApi(productId) {
-  return axios.delete(`${baseURL}/${productId}`, headers);
+function clearUserCart(productId) {
+  return axios.delete(`${baseURL}/${productId}`, headerOption);
 }
 
 function updateCountApi({ productId, count }) {
-  return axios.put(`${baseURL}/${productId}`, { count }, headers);
-}
-
-function clearCartApi() {
-  return axios.delete(baseURL, headers);
+  return axios.put(`${baseURL}/${productId}`, { count }, headerOption);
 }
 
 const CartContextProvider = ({ children }) => {
-  const queryClient = useQueryClient();
-  const invalidateCart = () => queryClient.invalidateQueries({ queryKey: ["cart"] });
+  const [cartData, setCartData] = useState(null);
+  const [numOfCartItems, setNumOfCartItems] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
 
-  const { data, isLoading: isCartLoading } = useApi("cart", 1, true);
+  useEffect(() => {
+    setIsLoading(true);
+    getUserCart()
+      .then((req) => {
+        setCartData(req.data.data);
+        setNumOfCartItems(req.data.numOfCartItems);
+      })
+      .catch((err) => console.log(err))
+      .finally(() => setIsLoading(false));
+  }, []);
 
-  const cartItems = data?.data?.products ?? [];
-  const totalCartPrice = data?.data?.totalCartPrice ?? 0;
-  const numOfCartItems = data?.numOfCartItems ?? 0;
-
-  const { mutate: addToCart, isPending: isAddingToCart } = useMutation({
-    mutationFn: addToCartApi,
-    onSuccess: invalidateCart,
-  });
-
-  const { mutate: removeFromCart, isPending: isRemovingFromCart } = useMutation({
-    mutationFn: removeFromCartApi,
-    onSuccess: invalidateCart,
-  });
-
-  const { mutate: updateCount, isPending: isUpdatingCount } = useMutation({
-    mutationFn: updateCountApi,
-    onSuccess: invalidateCart,
-  });
-
-  const { mutate: clearCart, isPending: isClearingCart } = useMutation({
-    mutationFn: clearCartApi,
-    onSuccess: invalidateCart,
-  });
+  async function addToCart(productId) {
+    setIsAddingToCart(true);
+    await addToCartApi(productId)
+      .then((res) => {
+        setCartData(res.data.data);
+        setNumOfCartItems(res.data.numOfCartItems);
+      })
+      .catch((err) => console.log(err))
+      .finally(() => setIsAddingToCart(false));
+  }
 
   return (
     <CartContext.Provider
       value={{
-        cartItems,
-        totalCartPrice,
+        cartData,
+        setCartData,
         numOfCartItems,
-        isCartLoading,
+        setNumOfCartItems,
+        isLoading,
+        setIsLoading,
+        isAddingToCart,
         getUserCart,
         addToCart,
-        isAddingToCart,
-        removeFromCart,
-        isRemovingFromCart,
-        updateCount,
-        isUpdatingCount,
-        clearCart,
-        isClearingCart,
+        clearUserCart,
+        updateCountApi,
       }}
     >
       {children}

@@ -48,6 +48,10 @@ body {
   font-family: var(--font-family) !important;
 }
 
+button {
+  cursor: pointer;
+}
+
 .active {
   color: var(--main-color);
 }
