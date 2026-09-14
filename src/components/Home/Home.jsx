@@ -6,8 +6,10 @@ import CategorySlider from "../CategorySlider/CategorySlider";
 import SectionTitle from "../SectionTitle/SectionTitle";
 import { Link } from "react-router-dom";
 import useApi from "../../Hooks/useApi";
+import { useCart } from "../../Context/CartContextProvider";
 
 const Home = () => {
+  const {addToCart} = useCart()
   const [currentPage, setCurrentPage] = useState(1);
 
   function goToPage(page) {
@@ -49,6 +51,7 @@ const Home = () => {
                         alt={product.title}
                       />
                       <button
+                        onClick={(e) => { e.preventDefault(); addToCart(product.id); }}
                         className="absolute top-2 right-2 w-9 h-9 rounded-full bg-white shadow-md flex items-center justify-center text-primary opacity-0 group-hover:opacity-100 translate-x-3 group-hover:translate-x-0 transition-all duration-300 hover:bg-primary hover:text-white"
                         aria-label="Add to cart"
                       >
