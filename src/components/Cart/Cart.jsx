@@ -1,77 +1,120 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTrashCan } from "@fortawesome/free-solid-svg-icons";
+import { faTrashCan, faShoppingBag } from "@fortawesome/free-solid-svg-icons";
 import SectionTitle from "../SectionTitle/SectionTitle";
-
-const cartItems = [
-  { id: 1, title: "Woman Bordeaux Long Sleeve Blouse BORDEAUX", price: 499, qty: 3, img: "https://ecommerce.routemisr.com/Route-Academy-products/1680401893316-cover.jpeg" },
-  { id: 2, title: "Adicolor Classics Beckenbauer Primeblue Track Top", price: 2379, qty: 2, img: "https://ecommerce.routemisr.com/Route-Academy-products/1680399913757-cover.jpeg" },
-  { id: 3, title: "Woman Shawl", price: 349, qty: 2, img: "https://ecommerce.routemisr.com/Route-Academy-products/1680401893316-cover.jpeg" },
-  { id: 4, title: "NSW Everyday Essentials No-Show Socks (Pack of 3) White/Black", price: 1079, qty: 2, img: "https://ecommerce.routemisr.com/Route-Academy-products/1680399913757-cover.jpeg" },
-  { id: 5, title: "Crew Neck Long Sleeve Men's Tricot Sweater with Color Block", price: 549, qty: 1, img: "https://ecommerce.routemisr.com/Route-Academy-products/1680401893316-cover.jpeg" },
-];
-
-
-
-const totalPrice = cartItems.reduce((acc, item) => acc + item.price * item.qty, 0);
+import useApi from "../../Hooks/useApi";
+import { Link } from "react-router-dom";
 
 const Cart = () => {
+  const { data, isLoading } = useApi("cart", 1, true);
+  const totalCartPrice = data?.data?.totalCartPrice ?? 0;
+  const numOfCartItems = data?.numOfCartItems ?? 0;
+  const products = data?.data?.products ?? [];
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-[60vh]">
+        <span className="loader"></span>
+      </div>
+    );
+  }
+
+  if (!products.length) {
+    return (
+      <div className="w-11/12 mx-auto py-8">
+        <SectionTitle title="Shop Cart" />
+        <div className="flex flex-col items-center justify-center py-20 text-text-muted gap-4">
+          <FontAwesomeIcon icon={faShoppingBag} className="text-5xl text-neutral-border" />
+          <p className="text-lg font-medium">Your cart is empty</p>
+          <Link to="/" className="text-primary text-sm hover:underline">
+            Continue Shopping
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="w-11/12 mx-auto py-8">
       <SectionTitle title="Shop Cart" />
 
-      {/* Total */}
-      <p className="text-primary font-semibold mb-6">
-        Total Cart Price : {totalPrice.toLocaleString()} EGP
-      </p>
+      {/* Summary bar */}
+      <div className="flex items-center justify-between mb-6 bg-neutral-bg-soft border border-neutral-border rounded-base px-5 py-3">
+        <p className="text-text-muted text-sm">
+          <span className="font-semibold text-text-heading">{numOfCartItems}</span> item{numOfCartItems !== 1 ? "s" : ""} in cart
+        </p>
+        <p className="text-primary font-bold text-base">
+          Total: {totalCartPrice.toLocaleString()} EGP
+        </p>
+      </div>
 
       {/* Cart items */}
       <div className="flex flex-col gap-3">
-        {cartItems.map((item) => (
+        {products.map((item) => (
           <div
-            key={item.id}
-            className="flex items-center gap-4 bg-neutral-bg-soft border border-neutral-border rounded-base px-4 py-3"
+            key={item._id}
+            className="flex items-center gap-4 bg-neutral-white border border-neutral-border rounded-base px-4 py-3 shadow-card"
           >
             {/* Image */}
-            <img
-              src={item.img}
-              alt={item.title}
-              className="w-20 h-20 object-cover rounded-base shrink-0 border border-neutral-border"
-            />
+            <Link to={`/productDetails/${item.product.id}`} className="shrink-0">
+              <img
+                src={item.product.imageCover}
+                alt={item.product.title}
+                className="w-20 h-20 object-cover rounded-base border border-neutral-border hover:opacity-90 transition-opacity"
+              />
+            </Link>
 
             {/* Info */}
             <div className="flex-1 min-w-0">
-              <h3 className="text-text-heading text-sm font-medium leading-snug mb-1 truncate">
-                {item.title}
-              </h3>
-              <p className="text-primary text-sm font-semibold mb-2">
-                price : {item.price.toLocaleString()}
+              <p className="text-primary text-xs font-medium uppercase tracking-wide mb-0.5">
+                {item.product.category?.name}
               </p>
-              <button className="flex items-center gap-1.5 text-danger-strong text-xs hover:underline">
-                <FontAwesomeIcon icon={faTrashCan} />
-                Remove
-              </button>
+              <Link to={`/productDetails/${item.product.id}`}>
+                <h3 className="text-text-heading text-sm font-semibold leading-snug mb-1 truncate hover:text-primary transition-colors">
+                  {item.product.title}
+                </h3>
+              </Link>
+              <p className="text-text-muted text-sm font-medium">
+                {item.price.toLocaleString()} EGP
+                <span className="text-text-muted font-normal"> × {item.count}</span>
+                <span className="ml-2 font-bold text-text-heading">
+                  = {(item.price * item.count).toLocaleString()} EGP
+                </span>
+              </p>
             </div>
 
-            {/* Quantity controls */}
-            <div className="flex items-center gap-2 shrink-0">
-              <button className="w-7 h-7 flex items-center justify-center border border-primary text-primary rounded-xs hover:bg-primary hover:text-white transition-colors text-sm font-bold">
-                +
-              </button>
-              <span className="text-text-heading font-semibold text-sm w-4 text-center">
-                {item.qty}
-              </span>
-              <button className="w-7 h-7 flex items-center justify-center border border-primary text-primary rounded-xs hover:bg-primary hover:text-white transition-colors text-sm font-bold">
-                -
+            {/* Quantity + remove */}
+            <div className="flex flex-col sm:flex-row items-center gap-3 shrink-0">
+              {/* Quantity controls */}
+              <div className="flex items-center border border-neutral-border rounded-base overflow-hidden">
+                <button className="w-8 h-8 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-colors text-sm font-bold border-r border-neutral-border">
+                  -
+                </button>
+                <span className="text-text-heading font-semibold text-sm w-8 text-center">
+                  {item.count}
+                </span>
+                <button className="w-8 h-8 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-colors text-sm font-bold border-l border-neutral-border">
+                  +
+                </button>
+              </div>
+
+              {/* Remove */}
+              <button className="flex items-center gap-1.5 text-danger-strong text-xs hover:underline whitespace-nowrap">
+                <FontAwesomeIcon icon={faTrashCan} />
+                Remove
               </button>
             </div>
           </div>
         ))}
       </div>
 
-      {/* Checkout button */}
-      <div className="mt-8 flex justify-end">
-        <button className="bg-primary hover:bg-primary-strong text-white font-medium text-sm px-8 py-3 rounded-base transition-colors shadow-xs">
-          Checkout
+      {/* Checkout */}
+      <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-neutral-border pt-6">
+        <div>
+          <p className="text-text-muted text-sm">Order total</p>
+          <p className="text-text-heading text-2xl font-bold">{totalCartPrice.toLocaleString()} EGP</p>
+        </div>
+        <button className="w-full sm:w-auto bg-primary hover:bg-primary-strong text-white font-medium text-sm px-10 py-3 rounded-base transition-colors shadow-xs">
+          Proceed to Checkout
         </button>
       </div>
     </div>
