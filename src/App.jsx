@@ -14,6 +14,7 @@ import ProductDetails from "./components/ProductDetails/ProductDetails";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import CartContextProvider from "./Context/CartContextProvider";
 import ShippingDetails from "./components/ShippingDetails/ShippingDetails";
+import Brands from "./components/Brands/Brands";
 
 const client = new QueryClient();
 
@@ -36,6 +37,7 @@ function App() {
             { index: true, Component: Home },
             { path: "product", Component: Product },
             { path: "cart", Component: Cart },
+            { path: "brands", Component: Brands },
             { path: "updatePassword", Component: UpdatePassword },
             { path: "forgetPassword", Component: ForgetPassword },
             { path: "productDetails/:id", Component: ProductDetails },
