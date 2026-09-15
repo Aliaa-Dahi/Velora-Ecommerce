@@ -1,10 +1,17 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import axios from "axios";
+import Cookies from "js-cookie";
+
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCartShopping, faTag, faBoxOpen, faCheck, faSpinner } from "@fortawesome/free-solid-svg-icons";
+import {
+  faCartShopping,
+  faTag,
+  faBoxOpen,
+} from "@fortawesome/free-solid-svg-icons";
 import SectionTitle from "../SectionTitle/SectionTitle";
 import useApi from "../../Hooks/useApi";
-import { useCart } from "../../Context/CartContextProvider";
+import { useQuery } from "@tanstack/react-query";
 
 // Renders 5 stars with exact partial fill (quarter, half, three-quarter, full)
 const StarRating = ({ rating, size = "text-base" }) => {
@@ -48,9 +55,17 @@ const ProductDetails = () => {
   const { id } = useParams();
   const [selectedImage, setSelectedImage] = useState(null);
 
-  const { data: productData, isLoading } = useApi(`products/${id}`);
+  let productResponse = useApi(`products/${id}`);
+  let productData = productResponse?.data;
+  let isLoading = productResponse?.isLoading;
+
+  async function addToCartFn(id) {
+    await axios.put(`https://ecommerce.routemisr.com/api/v1/cart/${id}`, {
+      headers: { token: Cookies.get("token") },
+    });
+  }
+
   const product = productData?.data;
-  const { addToCart, isAddingToCart, isInCart } = useCart();
 
   useEffect(() => {
     if (product?.imageCover) {
@@ -199,34 +214,11 @@ const ProductDetails = () => {
 
             {/* Add to cart */}
             <button
-              onClick={() => {
-                if (!isInCart(product.id) && !isAddingToCart(product.id)) {
-                  addToCart(product.id);
-                }
-              }}
-              disabled={isInCart(product.id) || isAddingToCart(product.id)}
-              className={`flex items-center justify-center gap-3 w-full font-medium text-sm py-3 rounded-base transition-colors duration-200 shadow-xs disabled:cursor-not-allowed
-                ${isInCart(product.id)
-                  ? "bg-success text-white opacity-80"
-                  : "bg-primary hover:bg-primary-strong text-white disabled:opacity-60"
-                }`}
+              onClick={addToCartFn(product._id)}
+              className="flex items-center justify-center gap-3 w-full bg-primary hover:bg-primary-strong text-white font-medium text-sm py-3 rounded-base transition-colors duration-200 shadow-xs"
             >
-              {isAddingToCart(product.id) ? (
-                <>
-                  <FontAwesomeIcon icon={faSpinner} className="animate-spin" />
-                  Adding...
-                </>
-              ) : isInCart(product.id) ? (
-                <>
-                  <FontAwesomeIcon icon={faCheck} />
-                  Added to Cart
-                </>
-              ) : (
-                <>
-                  <FontAwesomeIcon icon={faCartShopping} />
-                  Add to Cart
-                </>
-              )}
+              <FontAwesomeIcon icon={faCartShopping} />
+              Add to Cart
             </button>
           </div>
         </div>

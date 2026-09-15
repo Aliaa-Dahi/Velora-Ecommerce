@@ -78,8 +78,11 @@ const CartContextProvider = ({ children }) => {
 
   function isInCart(productId) {
     return (
-      cartData?.products?.some((item) => item.product?.id === productId) ??
-      false
+      cartData?.products?.some(
+        (item) =>
+          item.product?.id === productId ||
+          item.product?._id === productId
+      ) ?? false
     );
   }
 
