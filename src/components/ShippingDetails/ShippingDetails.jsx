@@ -51,7 +51,7 @@ const ShippingDetails = () => {
 
       // API returns a Stripe checkout session URL
       if (res.data?.session?.url) {
-        window.location.href = res.data.session.url;
+          window.open(res.data.session.url, "_self"); 
       }
     } catch (err) {
       setErrorMsg(
