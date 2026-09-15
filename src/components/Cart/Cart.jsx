@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTrashCan, faShoppingBag } from "@fortawesome/free-solid-svg-icons";
+import { faTrashCan, faShoppingBag, faSpinner } from "@fortawesome/free-solid-svg-icons";
 import SectionTitle from "../SectionTitle/SectionTitle";
 import { Link } from "react-router-dom";
 import { useCart } from "../../Context/CartContextProvider";
@@ -9,29 +9,14 @@ const Cart = () => {
     cartData,
     numOfCartItems,
     isLoading,
-    clearUserCart,
-    updateCountApi,
-    setCartData,
-    setNumOfCartItems,
-    getUserCart,
+    removeFromCart,
+    updateCount,
+    isRemoving,
+    isUpdating,
   } = useCart();
 
   const products = cartData?.products ?? [];
   const totalCartPrice = cartData?.totalCartPrice ?? 0;
-
-  async function handleRemove(productId) {
-    await clearUserCart(productId);
-    const req = await getUserCart();
-    setCartData(req.data.data);
-    setNumOfCartItems(req.data.numOfCartItems);
-  }
-
-  async function handleUpdateCount(productId, count) {
-    await updateCountApi({ productId, count });
-    const req = await getUserCart();
-    setCartData(req.data.data);
-    setNumOfCartItems(req.data.numOfCartItems);
-  }
 
 
   if (isLoading) {
@@ -108,28 +93,38 @@ const Cart = () => {
             <div className="flex flex-col sm:flex-row items-center gap-3 shrink-0">
               <div className="flex items-center border border-neutral-border rounded-base overflow-hidden">
                 <button
-                  onClick={() => handleUpdateCount(item.product.id, item.count - 1)}
-                  disabled={item.count <= 1}
+                  onClick={() => updateCount(item.product.id, item.count - 1)}
+                  disabled={item.count <= 1 || isUpdating(item.product.id)}
                   className="w-8 h-8 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-colors text-sm font-bold border-r border-neutral-border disabled:opacity-40"
                 >
                   -
                 </button>
                 <span className="text-text-heading font-semibold text-sm w-8 text-center">
-                  {item.count}
+                  {isUpdating(item.product.id) ? (
+                    <FontAwesomeIcon icon={faSpinner} className="animate-spin text-primary" />
+                  ) : (
+                    item.count
+                  )}
                 </span>
                 <button
-                  onClick={() => handleUpdateCount(item.product.id, item.count + 1)}
-                  className="w-8 h-8 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-colors text-sm font-bold border-l border-neutral-border"
+                  onClick={() => updateCount(item.product.id, item.count + 1)}
+                  disabled={isUpdating(item.product.id)}
+                  className="w-8 h-8 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-colors text-sm font-bold border-l border-neutral-border disabled:opacity-40"
                 >
                   +
                 </button>
               </div>
 
               <button
-                onClick={() => handleRemove(item.product.id)}
-                className="flex items-center gap-1.5 text-danger-strong text-xs hover:underline whitespace-nowrap"
+                onClick={() => removeFromCart(item.product.id)}
+                disabled={isRemoving(item.product.id)}
+                className="flex items-center gap-1.5 text-danger-strong text-xs hover:underline whitespace-nowrap disabled:opacity-50"
               >
-                <FontAwesomeIcon icon={faTrashCan} />
+                {isRemoving(item.product.id) ? (
+                  <FontAwesomeIcon icon={faSpinner} className="animate-spin" />
+                ) : (
+                  <FontAwesomeIcon icon={faTrashCan} />
+                )}
                 Remove
               </button>
             </div>
