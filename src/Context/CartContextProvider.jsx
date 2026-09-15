@@ -1,71 +1,119 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
+import { useMutation } from "@tanstack/react-query";
 
 export const CartContext = createContext();
 export const useCart = () => useContext(CartContext);
 
 const baseURL = "https://ecommerce.routemisr.com/api/v1/cart";
-const headerOption = { headers: { token: Cookies.get("token") } };
-
-function getUserCart() {
-  return axios.get(baseURL, headerOption);
-}
-
-function addToCartApi(productId) {
-  return axios.post(baseURL, { productId }, headerOption);
-}
-
-function clearUserCart(productId) {
-  return axios.delete(`${baseURL}/${productId}`, headerOption);
-}
-
-function updateCountApi({ productId, count }) {
-  return axios.put(`${baseURL}/${productId}`, { count }, headerOption);
-}
+const getHeaders = () => ({ headers: { token: Cookies.get("token") } });
 
 const CartContextProvider = ({ children }) => {
   const [cartData, setCartData] = useState(null);
   const [numOfCartItems, setNumOfCartItems] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
-  const [isAddingToCart, setIsAddingToCart] = useState(false);
 
-  useEffect(() => {
-    setIsLoading(true);
-    getUserCart()
-      .then((req) => {
-        setCartData(req.data.data);
-        setNumOfCartItems(req.data.numOfCartItems);
-      })
-      .catch((err) => console.log(err))
-      .finally(() => setIsLoading(false));
+  // Stable setter — pulls the cart fields out of any API response
+  const syncCart = useCallback((res) => {
+    setCartData(res.data.data ?? null);
+    setNumOfCartItems(res.data.numOfCartItems ?? 0);
   }, []);
 
-  async function addToCart(productId) {
-    setIsAddingToCart(true);
-    await addToCartApi(productId)
-      .then((res) => {
-        setCartData(res.data.data);
-        setNumOfCartItems(res.data.numOfCartItems);
-      })
+  // ── Initial cart fetch ──────────────────────────────────────────────────────
+  useEffect(() => {
+    setIsLoading(true);
+    axios
+      .get(baseURL, getHeaders())
+      .then(syncCart)
       .catch((err) => console.log(err))
-      .finally(() => setIsAddingToCart(false));
+      .finally(() => setIsLoading(false));
+  }, [syncCart]);
+
+  // ── Mutations ───────────────────────────────────────────────────────────────
+  const addMutation = useMutation({
+    mutationFn: (productId) =>
+      axios.post(baseURL, { productId }, getHeaders()),
+  });
+
+  const removeMutation = useMutation({
+    mutationFn: (productId) =>
+      axios.delete(`${baseURL}/${productId}`, getHeaders()),
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: ({ productId, count }) =>
+      axios.put(`${baseURL}/${productId}`, { count }, getHeaders()),
+  });
+
+  // ── Public actions — mutateAsync so we can await and sync immediately ───────
+  async function addToCart(productId) {
+    try {
+      const res = await addMutation.mutateAsync(productId);
+      syncCart(res);
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  async function removeFromCart(productId) {
+    try {
+      const res = await removeMutation.mutateAsync(productId);
+      syncCart(res);
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  async function updateCount(productId, count) {
+    try {
+      const res = await updateMutation.mutateAsync({ productId, count });
+      syncCart(res);
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  // ── State helpers ────────────────────────────────────────────────────────────
+
+  function isInCart(productId) {
+    return (
+      cartData?.products?.some(
+        (item) =>
+          item.product?.id === productId ||
+          item.product?._id === productId
+      ) ?? false
+    );
+  }
+
+  function isAddingToCart(productId) {
+    return addMutation.isPending && addMutation.variables === productId;
+  }
+
+  function isRemoving(productId) {
+    return removeMutation.isPending && removeMutation.variables === productId;
+  }
+
+  function isUpdating(productId) {
+    return (
+      updateMutation.isPending &&
+      updateMutation.variables?.productId === productId
+    );
   }
 
   return (
     <CartContext.Provider
       value={{
         cartData,
-        setCartData,
         numOfCartItems,
-        setNumOfCartItems,
         isLoading,
-        setIsLoading,
+        isInCart,
         isAddingToCart,
-        getUserCart,
+        isRemoving,
+        isUpdating,
         addToCart,
-        clearUserCart,
-        updateCountApi,
+        removeFromCart,
+        updateCount,
       }}
     >
       {children}

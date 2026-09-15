@@ -1,10 +1,17 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import axios from "axios";
+import Cookies from "js-cookie";
+
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCartShopping, faTag, faBoxOpen } from "@fortawesome/free-solid-svg-icons";
+import {
+  faCartShopping,
+  faTag,
+  faBoxOpen,
+} from "@fortawesome/free-solid-svg-icons";
 import SectionTitle from "../SectionTitle/SectionTitle";
 import useApi from "../../Hooks/useApi";
-import { useCart } from "../../Context/CartContextProvider";
+import { useQuery } from "@tanstack/react-query";
 
 // Renders 5 stars with exact partial fill (quarter, half, three-quarter, full)
 const StarRating = ({ rating, size = "text-base" }) => {
@@ -48,9 +55,17 @@ const ProductDetails = () => {
   const { id } = useParams();
   const [selectedImage, setSelectedImage] = useState(null);
 
-  const { data: productData, isLoading } = useApi(`products/${id}`);
+  let productResponse = useApi(`products/${id}`);
+  let productData = productResponse?.data;
+  let isLoading = productResponse?.isLoading;
+
+  async function addToCartFn(id) {
+    await axios.put(`https://ecommerce.routemisr.com/api/v1/cart/${id}`, {
+      headers: { token: Cookies.get("token") },
+    });
+  }
+
   const product = productData?.data;
-  const { addToCart, isAddingToCart } = useCart();
 
   useEffect(() => {
     if (product?.imageCover) {
@@ -199,12 +214,11 @@ const ProductDetails = () => {
 
             {/* Add to cart */}
             <button
-              onClick={() => addToCart(product.id)}
-              disabled={isAddingToCart}
-              className="flex items-center justify-center gap-3 w-full bg-primary hover:bg-primary-strong text-white font-medium text-sm py-3 rounded-base transition-colors duration-200 shadow-xs disabled:opacity-60"
+              onClick={addToCartFn(product._id)}
+              className="flex items-center justify-center gap-3 w-full bg-primary hover:bg-primary-strong text-white font-medium text-sm py-3 rounded-base transition-colors duration-200 shadow-xs"
             >
               <FontAwesomeIcon icon={faCartShopping} />
-              {isAddingToCart ? "Adding..." : "Add to Cart"}
+              Add to Cart
             </button>
           </div>
         </div>
