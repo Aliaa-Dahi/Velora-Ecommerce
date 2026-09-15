@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCartShopping, faTag, faBoxOpen } from "@fortawesome/free-solid-svg-icons";
+import { faCartShopping, faTag, faBoxOpen, faCheck, faSpinner } from "@fortawesome/free-solid-svg-icons";
 import SectionTitle from "../SectionTitle/SectionTitle";
 import useApi from "../../Hooks/useApi";
 import { useCart } from "../../Context/CartContextProvider";
@@ -50,7 +50,7 @@ const ProductDetails = () => {
 
   const { data: productData, isLoading } = useApi(`products/${id}`);
   const product = productData?.data;
-  const { addToCart, isAddingToCart } = useCart();
+  const { addToCart, isAddingToCart, isInCart } = useCart();
 
   useEffect(() => {
     if (product?.imageCover) {
@@ -199,12 +199,34 @@ const ProductDetails = () => {
 
             {/* Add to cart */}
             <button
-              onClick={() => addToCart(product.id)}
-              disabled={isAddingToCart}
-              className="flex items-center justify-center gap-3 w-full bg-primary hover:bg-primary-strong text-white font-medium text-sm py-3 rounded-base transition-colors duration-200 shadow-xs disabled:opacity-60"
+              onClick={() => {
+                if (!isInCart(product.id) && !isAddingToCart(product.id)) {
+                  addToCart(product.id);
+                }
+              }}
+              disabled={isInCart(product.id) || isAddingToCart(product.id)}
+              className={`flex items-center justify-center gap-3 w-full font-medium text-sm py-3 rounded-base transition-colors duration-200 shadow-xs disabled:cursor-not-allowed
+                ${isInCart(product.id)
+                  ? "bg-success text-white opacity-80"
+                  : "bg-primary hover:bg-primary-strong text-white disabled:opacity-60"
+                }`}
             >
-              <FontAwesomeIcon icon={faCartShopping} />
-              {isAddingToCart ? "Adding..." : "Add to Cart"}
+              {isAddingToCart(product.id) ? (
+                <>
+                  <FontAwesomeIcon icon={faSpinner} className="animate-spin" />
+                  Adding...
+                </>
+              ) : isInCart(product.id) ? (
+                <>
+                  <FontAwesomeIcon icon={faCheck} />
+                  Added to Cart
+                </>
+              ) : (
+                <>
+                  <FontAwesomeIcon icon={faCartShopping} />
+                  Add to Cart
+                </>
+              )}
             </button>
           </div>
         </div>

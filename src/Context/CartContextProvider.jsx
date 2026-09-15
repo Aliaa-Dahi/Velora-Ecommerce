@@ -28,7 +28,8 @@ const CartContextProvider = ({ children }) => {
   const [cartData, setCartData] = useState(null);
   const [numOfCartItems, setNumOfCartItems] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
-  const [isAddingToCart, setIsAddingToCart] = useState(false);
+  // Track loading per product id: { [productId]: true }
+  const [addingIds, setAddingIds] = useState({});
 
   useEffect(() => {
     setIsLoading(true);
@@ -41,15 +42,34 @@ const CartContextProvider = ({ children }) => {
       .finally(() => setIsLoading(false));
   }, []);
 
+  // Returns true if the product is currently in the cart
+  function isInCart(productId) {
+    return (
+      cartData?.products?.some((item) => item.product?.id === productId) ??
+      false
+    );
+  }
+
+  // Returns true if this specific product is being added right now
+  function isAddingToCart(productId) {
+    return !!addingIds[productId];
+  }
+
   async function addToCart(productId) {
-    setIsAddingToCart(true);
+    setAddingIds((prev) => ({ ...prev, [productId]: true }));
     await addToCartApi(productId)
       .then((res) => {
         setCartData(res.data.data);
         setNumOfCartItems(res.data.numOfCartItems);
       })
       .catch((err) => console.log(err))
-      .finally(() => setIsAddingToCart(false));
+      .finally(() =>
+        setAddingIds((prev) => {
+          const next = { ...prev };
+          delete next[productId];
+          return next;
+        })
+      );
   }
 
   return (
@@ -62,6 +82,7 @@ const CartContextProvider = ({ children }) => {
         isLoading,
         setIsLoading,
         isAddingToCart,
+        isInCart,
         getUserCart,
         addToCart,
         clearUserCart,
