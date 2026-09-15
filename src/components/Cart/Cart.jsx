@@ -140,9 +140,9 @@ const Cart = () => {
             {totalCartPrice.toLocaleString()} EGP
           </p>
         </div>
-        <button className="w-full sm:w-auto bg-primary hover:bg-primary-strong text-white font-medium text-sm px-10 py-3 rounded-base transition-colors shadow-xs">
+        <Link to={`shippingDetails`+ cartData._id} className="w-full sm:w-auto bg-primary hover:bg-primary-strong text-white font-medium text-sm px-10 py-3 rounded-base transition-colors shadow-xs">
           Proceed to Checkout
-        </button>
+        </Link>
       </div>
     </div>
   );

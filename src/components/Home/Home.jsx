@@ -58,12 +58,12 @@ const Home = () => {
                           }
                         }}
                         disabled={isInCart(product.id) || isAddingToCart(product.id)}
-                        className={`absolute top-2 right-2 w-9 h-9 rounded-full shadow-md flex items-center justify-center opacity-0 group-hover:opacity-100 translate-x-3 group-hover:translate-x-0 transition-all duration-300 disabled:cursor-not-allowed
+                        className={`absolute top-2 right-2 w-9 h-9 rounded-full opacity-0 group-hover:opacity-100 shadow-md flex translate-x-3 group-hover:translate-x-0 items-center justify-center transition-all duration-300 disabled:cursor-not-allowed
                           ${isInCart(product.id)
                             ? "bg-primary text-white"
-                            : "bg-white text-primary hover:bg-primary hover:text-white"
+                            : "bg-white text-primary  hover:bg-primary hover:text-white"
                           }`}
-                        aria-label={isInCart(product.id) ? "Already in cart" : "Add to cart"}
+                        // aria-label={isInCart(product.id) ? "Already in cart" : "Add to cart"}
                       >
                         {isAddingToCart(product.id) ? (
                           <FontAwesomeIcon icon={faSpinner} className="animate-spin" />
