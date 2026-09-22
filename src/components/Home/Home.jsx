@@ -7,6 +7,7 @@ import SectionTitle from "../SectionTitle/SectionTitle";
 import { Link } from "react-router-dom";
 import useApi from "../../Hooks/useApi";
 import { useCart } from "../../Context/CartContextProvider";
+import Loader from "../Loader.jsx/Loader";
 
 const PREVIEW_COUNT = 6;
 
@@ -20,9 +21,7 @@ const Home = () => {
   return (
     <>
       {isLoading ? (
-        <div className="flex justify-center items-center h-[60vh]">
-          <span className="loader"></span>
-        </div>
+        <Loader />
       ) : (
         <div className="w-11/12 mx-auto py-6">
           {/* Hero */}

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import useApi from "../../Hooks/useApi";
 import SectionTitle from "../SectionTitle/SectionTitle";
+import Loader from "../Loader.jsx/Loader";
 
 const Brands = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -15,13 +16,9 @@ const Brands = () => {
   const paginationBase =
     "flex items-center justify-center text-text-muted bg-neutral-white border border-neutral-border-medium font-medium text-sm px-3 h-9 cursor-pointer transition-colors hover:bg-neutral-bg-medium hover:text-text-heading select-none";
 
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-[60vh]">
-        <span className="loader"></span>
-      </div>
-    );
-  }
+    if (isLoading) {
+      return <Loader />;
+    }
 
   return (
     <div className="w-11/12 mx-auto py-8">

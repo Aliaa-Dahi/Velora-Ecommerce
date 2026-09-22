@@ -13,6 +13,7 @@ import StarRating from "../StarRating/StarRating";
 
 import useApi from "../../Hooks/useApi";
 import { useCart } from "../../Context/CartContextProvider";
+import Loader from "../Loader.jsx/Loader";
 
 // Renders 5 stars with exact partial fill (quarter, half, three-quarter, full)
 
@@ -36,11 +37,7 @@ const ProductDetails = () => {
   }, [product?.imageCover]);
 
   if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-[60vh]">
-        <span className="loader"></span>
-      </div>
-    );
+    return <Loader />;
   }
 
   const discount = product.priceAfterDiscount

@@ -3,6 +3,7 @@ import { faTrashCan, faShoppingBag, faSpinner } from "@fortawesome/free-solid-sv
 import SectionTitle from "../SectionTitle/SectionTitle";
 import { Link } from "react-router-dom";
 import { useCart } from "../../Context/CartContextProvider";
+import Loader from "../Loader.jsx/Loader";
 
 const Cart = () => {
   const {
@@ -20,11 +21,7 @@ const Cart = () => {
 
 
   if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-[60vh]">
-        <span className="loader"></span>
-      </div>
-    );
+    return <Loader />;
   }
 
   if (!products.length) {
