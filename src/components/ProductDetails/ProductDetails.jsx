@@ -1,69 +1,31 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import axios from "axios";
-import Cookies from "js-cookie";
-
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCartShopping,
   faTag,
   faBoxOpen,
+  faCheck,
+  faSpinner,
 } from "@fortawesome/free-solid-svg-icons";
-import SectionTitle from "../SectionTitle/SectionTitle";
+import Reviews from "../Reviews/Reviews";
+import StarRating from "../StarRating/StarRating";
+
 import useApi from "../../Hooks/useApi";
-import { useQuery } from "@tanstack/react-query";
+import { useCart } from "../../Context/CartContextProvider";
+import Loader from "../Loader.jsx/Loader";
 
 // Renders 5 stars with exact partial fill (quarter, half, three-quarter, full)
-const StarRating = ({ rating, size = "text-base" }) => {
-  return (
-    <div className={`flex gap-0.5 ${size}`}>
-      {Array(5)
-        .fill(null)
-        .map((_, i) => {
-          const fill = Math.min(Math.max(rating - i, 0), 1); // 0 to 1
-          const percent = Math.round(fill * 100);
-          return (
-            <span key={i} className="relative inline-block w-[1em] h-[1em]">
-              {/* Gray base star */}
-              <svg
-                viewBox="0 0 24 24"
-                className="w-full h-full fill-neutral-border absolute top-0 left-0"
-              >
-                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-              </svg>
-              {/* Yellow fill star clipped to percent */}
-              {percent > 0 && (
-                <svg
-                  viewBox="0 0 24 24"
-                  className="w-full h-full absolute top-0 left-0"
-                  style={{ clipPath: `inset(0 ${100 - percent}% 0 0)` }}
-                >
-                  <path
-                    d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
-                    fill="#facc15"
-                  />
-                </svg>
-              )}
-            </span>
-          );
-        })}
-    </div>
-  );
-};
+
 
 const ProductDetails = () => {
   const { id } = useParams();
   const [selectedImage, setSelectedImage] = useState(null);
+  const { addToCart, isAddingToCart, isInCart } = useCart();
 
   let productResponse = useApi(`products/${id}`);
   let productData = productResponse?.data;
   let isLoading = productResponse?.isLoading;
-
-  async function addToCartFn(id) {
-    await axios.put(`https://ecommerce.routemisr.com/api/v1/cart/${id}`, {
-      headers: { token: Cookies.get("token") },
-    });
-  }
 
   const product = productData?.data;
 
@@ -71,14 +33,11 @@ const ProductDetails = () => {
     if (product?.imageCover) {
       setSelectedImage(product.imageCover);
     }
+    // console.log(product?.reviews)
   }, [product?.imageCover]);
 
   if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-[60vh]">
-        <span className="loader"></span>
-      </div>
-    );
+    return <Loader />;
   }
 
   const discount = product.priceAfterDiscount
@@ -214,55 +173,40 @@ const ProductDetails = () => {
 
             {/* Add to cart */}
             <button
-              onClick={addToCartFn(product._id)}
-              className="flex items-center justify-center gap-3 w-full bg-primary hover:bg-primary-strong text-white font-medium text-sm py-3 rounded-base transition-colors duration-200 shadow-xs"
+              onClick={() => {
+                if (!isInCart(product._id) && !isAddingToCart(product._id)) {
+                  addToCart(product._id);
+                }
+              }}
+              disabled={isInCart(product._id) || isAddingToCart(product._id)}
+              className={`flex items-center justify-center gap-3 w-full font-medium text-sm py-3 rounded-base transition-colors duration-200 shadow-xs disabled:cursor-not-allowed
+                ${isInCart(product._id)
+                  ? "bg-primary-soft text-primary border border-primary"
+                  : "bg-primary hover:bg-primary-strong text-white disabled:opacity-60"
+                }`}
             >
-              <FontAwesomeIcon icon={faCartShopping} />
-              Add to Cart
+              {isAddingToCart(product._id) ? (
+                <>
+                  <FontAwesomeIcon icon={faSpinner} className="animate-spin" />
+                  Adding...
+                </>
+              ) : isInCart(product._id) ? (
+                <>
+                  <FontAwesomeIcon icon={faCheck} />
+                  Added to Cart
+                </>
+              ) : (
+                <>
+                  <FontAwesomeIcon icon={faCartShopping} />
+                  Add to Cart
+                </>
+              )}
             </button>
           </div>
         </div>
 
         {/* ── Reviews ── */}
-        {product.reviews?.length > 0 && (
-          <div className="mt-10">
-            <SectionTitle title="Customer Reviews" />
-            <div className="flex flex-col gap-4">
-              {product.reviews.map((review) => (
-                <div
-                  key={review._id}
-                  className="bg-neutral-bg-soft border border-neutral-border rounded-base p-4"
-                >
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-full bg-primary-soft flex items-center justify-center text-primary font-bold text-sm shrink-0">
-                        {review.user?.name?.[0]?.toUpperCase() || "U"}
-                      </div>
-                      <div>
-                        <span className="text-text-heading text-sm font-semibold block">
-                          {review.user?.name || "Anonymous"}
-                        </span>
-                        <span className="text-text-muted text-xs">
-                          {new Date(review.createdAt).toLocaleDateString(
-                            "en-US",
-                            { year: "numeric", month: "short", day: "numeric" }
-                          )}
-                        </span>
-                      </div>
-                    </div>
-                    <StarRating
-                      rating={review.rating ?? review.ratings ?? 0}
-                      size="text-sm"
-                    />
-                  </div>
-                  <p className="text-text-muted text-sm leading-relaxed">
-                    {review.review}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+        <Reviews reviews={product?.reviews} />
       </div>
     </div>
   );
