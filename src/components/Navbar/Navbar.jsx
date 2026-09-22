@@ -4,12 +4,17 @@ import { faCartShopping } from "@fortawesome/free-solid-svg-icons";
 import logoImg from "../../assets/images/freshcart-logo.svg";
 import { useState } from "react";
 import { useCart } from "../../Context/CartContextProvider";
+import { useSelector, useDispatch } from "react-redux";
+import { logout } from "../Store/AuthSlice";
 import Cookies from "js-cookie";
 
 const Navbar = () => {
+  const dispatch = useDispatch();
   const [menuOpen, setMenuOpen] = useState(false);
   const { numOfCartItems } = useCart();
-  const isLoggedIn = !!Cookies.get("token");
+  const { isLoggedIn } = useSelector((state) => state.auth);
+  const user = JSON.parse(Cookies.get("user") ?? "{}");
+  const userInitial = user?.name?.[0]?.toUpperCase() ?? "?";
 
   return (
     <nav className="bg-neutral-white fixed w-full z-20 top-0 start-0 border-b border-neutral-border shadow-xs">
@@ -21,14 +26,20 @@ const Navbar = () => {
         {/* Hamburger + cart icon on mobile */}
         <div className="flex items-center gap-3 md:hidden">
           {isLoggedIn && (
-            <Link to="/cart" className="relative text-text-muted hover:text-primary transition-colors">
-              <FontAwesomeIcon icon={faCartShopping} className="text-lg" />
-              {numOfCartItems > 0 && (
-                <span className="absolute -top-2 -right-2 bg-primary text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
-                  {numOfCartItems}
-                </span>
-              )}
-            </Link>
+            <>
+              {/* User avatar */}
+              <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-sm font-bold shrink-0">
+                {userInitial}
+              </div>
+              <Link to="/cart" className="relative text-text-muted hover:text-primary transition-colors">
+                <FontAwesomeIcon icon={faCartShopping} className="text-lg" />
+                {numOfCartItems > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-primary text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                    {numOfCartItems}
+                  </span>
+                )}
+              </Link>
+            </>
           )}
           <button
             onClick={() => setMenuOpen(!menuOpen)}
@@ -37,14 +48,28 @@ const Navbar = () => {
             aria-expanded={menuOpen}
           >
             <span className="sr-only">Open main menu</span>
-            <svg className="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <path stroke="currentColor" strokeLinecap="round" strokeWidth="2" d="M5 7h14M5 12h14M5 17h14" />
+            <svg
+              className="w-6 h-6"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke="currentColor"
+                strokeLinecap="round"
+                strokeWidth="2"
+                d="M5 7h14M5 12h14M5 17h14"
+              />
             </svg>
           </button>
         </div>
 
         {/* Menu */}
-        <div className={`${menuOpen ? "flex" : "hidden"} w-full md:flex md:w-auto md:grow flex-col md:flex-row md:justify-around mt-3 md:mt-0`}>
+        <div
+          className={`${
+            menuOpen ? "flex" : "hidden"
+          } w-full md:flex md:w-auto md:grow flex-col md:flex-row md:justify-around mt-3 md:mt-0`}
+        >
           {/* Nav links — Cart removed, handled by icon */}
           <ul className="font-medium flex flex-col md:flex-row md:items-center md:space-x-6 gap-1 md:gap-0 border border-neutral-border md:border-0 rounded-base md:rounded-none bg-neutral-bg-soft md:bg-transparent p-3 md:p-0">
             {[
@@ -75,7 +100,11 @@ const Navbar = () => {
           <ul className="font-medium flex flex-row flex-wrap items-center gap-3 md:gap-4 mt-3 md:mt-0 px-3 md:px-0">
             {/* Cart icon — desktop only, logged in only */}
             {isLoggedIn && (
-              <li className="hidden md:block">
+              <li className="hidden md:flex items-center gap-3">
+                {/* User avatar */}
+                <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-sm font-bold shrink-0">
+                  {userInitial}
+                </div>
                 <Link to="/cart" className="relative text-text-muted hover:text-primary transition-colors">
                   <FontAwesomeIcon icon={faCartShopping} className="text-lg" />
                   {numOfCartItems > 0 && (
@@ -89,19 +118,33 @@ const Navbar = () => {
 
             {isLoggedIn ? (
               <li>
-                <NavLink to="/logout" onClick={() => setMenuOpen(false)} className="text-text-muted hover:text-primary text-sm transition-colors">
+                <span
+                  onClick={() => {
+                    setMenuOpen(false);
+                    dispatch(logout());
+                  }}
+                  className="text-text-muted hover:text-primary text-sm transition-colors"
+                >
                   Logout
-                </NavLink>
+                </span>
               </li>
             ) : (
               <>
                 <li>
-                  <NavLink to="/login" onClick={() => setMenuOpen(false)} className="text-text-muted hover:text-primary text-sm transition-colors">
+                  <NavLink
+                    to="/login"
+                    onClick={() => setMenuOpen(false)}
+                    className="text-text-muted hover:text-primary text-sm transition-colors"
+                  >
                     Login
                   </NavLink>
                 </li>
                 <li>
-                  <NavLink to="/register" onClick={() => setMenuOpen(false)} className="text-text-muted hover:text-primary text-sm transition-colors">
+                  <NavLink
+                    to="/register"
+                    onClick={() => setMenuOpen(false)}
+                    className="text-text-muted hover:text-primary text-sm transition-colors"
+                  >
                     Register
                   </NavLink>
                 </li>
