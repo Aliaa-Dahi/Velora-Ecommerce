@@ -4,6 +4,9 @@ import SectionTitle from "../SectionTitle/SectionTitle";
 import { Link } from "react-router-dom";
 import { useCart } from "../../Context/CartContextProvider";
 import Loader from "../Loader.jsx/Loader";
+import { useSelector } from "react-redux";
+import { useEffect } from "react";
+import { useDispatch } from "react-redux";
 
 const Cart = () => {
   const {
@@ -15,10 +18,17 @@ const Cart = () => {
     isRemoving,
     isUpdating,
   } = useCart();
+  let dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(getCart())
+  })
 
   const products = cartData?.products ?? [];
   const totalCartPrice = cartData?.totalCartPrice ?? 0;
 
+  const cart = useSelector((state) => state.cart);
+  // console.log(cart)
 
   if (isLoading) {
     return <Loader />;

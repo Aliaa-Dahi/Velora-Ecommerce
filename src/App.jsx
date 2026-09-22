@@ -15,6 +15,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import CartContextProvider from "./Context/CartContextProvider";
 import ShippingDetails from "./components/ShippingDetails/ShippingDetails";
 import Brands from "./components/Brands/Brands";
+import { store } from "./components/Store/store";
+import { Provider } from "react-redux";
 
 const client = new QueryClient();
 
@@ -51,11 +53,15 @@ function App() {
   ]);
 
   return (
-    <QueryClientProvider client={client}>
-      <CartContextProvider>
-        <RouterProvider router={routes} />
-      </CartContextProvider>
-    </QueryClientProvider>
+    // App.jsx or main.jsx
+
+    <Provider store={store}>
+      <QueryClientProvider client={client}>
+        <CartContextProvider>
+          <RouterProvider router={routes} />
+        </CartContextProvider>
+      </QueryClientProvider>
+    </Provider>
   );
 }
 
