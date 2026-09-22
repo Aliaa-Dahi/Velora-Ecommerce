@@ -1,28 +1,21 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faStar, faCartShopping, faCheck, faSpinner } from "@fortawesome/free-solid-svg-icons";
-import { useState } from "react";
+import { faStar, faCartShopping, faCheck, faSpinner, faArrowRight } from "@fortawesome/free-solid-svg-icons";
 import MainSlider from "../MainSlider/MainSlider";
 import CategorySlider from "../CategorySlider/CategorySlider";
+import BrandsSlider from "../BrandsSlider/BrandsSlider";
 import SectionTitle from "../SectionTitle/SectionTitle";
 import { Link } from "react-router-dom";
 import useApi from "../../Hooks/useApi";
 import { useCart } from "../../Context/CartContextProvider";
 
+const PREVIEW_COUNT = 6;
+
 const Home = () => {
   const { addToCart, isAddingToCart, isInCart } = useCart();
-  const [currentPage, setCurrentPage] = useState(1);
+  const { data, isLoading } = useApi("products");
 
-  function goToPage(page) {
-    setCurrentPage(page);
-  }
-
-  const { data, isLoading } = useApi('products', currentPage);
-
-  const productList = data?.data ?? [];
-  const numberOfPages = data?.metadata?.numberOfPages ?? 0;
-
-  const paginationBase =
-    "flex items-center justify-center text-text-muted bg-neutral-white border border-neutral-border-medium font-medium text-sm px-3 h-9 cursor-pointer transition-colors hover:bg-neutral-bg-medium hover:text-text-heading select-none";
+  // Show only the first N products as a preview
+  const productList = (data?.data ?? []).slice(0, PREVIEW_COUNT);
 
   return (
     <>
@@ -32,11 +25,25 @@ const Home = () => {
         </div>
       ) : (
         <div className="w-11/12 mx-auto py-6">
+          {/* Hero */}
           <MainSlider />
+
+          {/* Categories */}
           <CategorySlider />
 
-          <SectionTitle title="Featured Products" />
-          <div className="flex flex-wrap -mx-2">
+          {/* Featured Products */}
+          <div className="flex items-center justify-between mb-4">
+            <SectionTitle title="Featured Products" className="mb-0" />
+            <Link
+              to="/product"
+              className="flex items-center gap-1.5 text-primary text-sm font-medium hover:text-primary-strong transition-colors"
+            >
+              View All
+              <FontAwesomeIcon icon={faArrowRight} className="text-xs" />
+            </Link>
+          </div>
+
+          <div className="flex flex-wrap -mx-2 mb-6">
             {productList.map((product) => (
               <div
                 key={product.id}
@@ -61,9 +68,9 @@ const Home = () => {
                         className={`absolute top-2 right-2 w-9 h-9 rounded-full opacity-0 group-hover:opacity-100 shadow-md flex translate-x-3 group-hover:translate-x-0 items-center justify-center transition-all duration-300 disabled:cursor-not-allowed
                           ${isInCart(product.id)
                             ? "bg-primary text-white"
-                            : "bg-white text-primary  hover:bg-primary hover:text-white"
+                            : "bg-white text-primary hover:bg-primary hover:text-white"
                           }`}
-                        // aria-label={isInCart(product.id) ? "Already in cart" : "Add to cart"}
+                        aria-label={isInCart(product.id) ? "Already in cart" : "Add to cart"}
                       >
                         {isAddingToCart(product.id) ? (
                           <FontAwesomeIcon icon={faSpinner} className="animate-spin" />
@@ -87,10 +94,7 @@ const Home = () => {
                         </span>
                         <span className="flex items-center gap-1 text-xs text-text-muted">
                           {product.ratingsAverage}
-                          <FontAwesomeIcon
-                            icon={faStar}
-                            className="text-yellow-400"
-                          />
+                          <FontAwesomeIcon icon={faStar} className="text-yellow-400" />
                         </span>
                       </div>
                     </div>
@@ -100,51 +104,19 @@ const Home = () => {
             ))}
           </div>
 
-          {/* Pagination */}
-          <nav aria-label="Product pagination" className="mt-4 mb-8">
-            <ul className="flex justify-center -space-x-px text-sm">
-              <li>
-                <a
-                  onClick={() => currentPage > 1 && goToPage(currentPage - 1)}
-                  className={`${paginationBase} rounded-s-base ${
-                    currentPage === 1 ? "opacity-40 cursor-not-allowed" : ""
-                  }`}
-                >
-                  Previous
-                </a>
-              </li>
+          {/* View all CTA */}
+          <div className="flex justify-center mb-10">
+            <Link
+              to="/product"
+              className="inline-flex items-center gap-2 bg-primary hover:bg-primary-strong text-white font-medium text-sm px-8 py-2.5 rounded-base transition-colors shadow-xs"
+            >
+              Browse All Products
+              <FontAwesomeIcon icon={faArrowRight} className="text-xs" />
+            </Link>
+          </div>
 
-              {Array(numberOfPages)
-                .fill(null)
-                .map((_, index) => (
-                  <li key={index}>
-                    <a
-                      onClick={() => goToPage(index + 1)}
-                      className={`${paginationBase} ${
-                        currentPage === index + 1
-                          ? "bg-primary text-white border-primary hover:bg-primary-strong hover:text-white"
-                          : ""
-                      }`}
-                    >
-                      {index + 1}
-                    </a>
-                  </li>
-                ))}
-
-              <li>
-                <a
-                  onClick={() => currentPage < numberOfPages && goToPage(currentPage + 1)}
-                  className={`${paginationBase} rounded-e-base ${
-                    currentPage === numberOfPages
-                      ? "opacity-40 cursor-not-allowed"
-                      : ""
-                  }`}
-                >
-                  Next
-                </a>
-              </li>
-            </ul>
-          </nav>
+          {/* Brands */}
+          <BrandsSlider />
         </div>
       )}
     </>

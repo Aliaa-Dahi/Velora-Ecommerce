@@ -8,7 +8,7 @@ const useApi = (endpoint, page = 1, requiresAuth = false) => {
   const isProducts = endpoint === "products";
 
   const url = isProducts
-    ? `${BASE_URL}/${endpoint}?page=${page}&limit=12`
+    ? `${BASE_URL}/${endpoint}?page=${page}&limit=20`
     : `${BASE_URL}/${endpoint}`;
 
   const headers = requiresAuth ? { token: Cookies.get("token") } : {};
